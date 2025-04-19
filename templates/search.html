@@ -78,7 +78,7 @@
             <h2 class="text-xl font-semibold">${course.title}</h2>
           `;
           card.addEventListener('click', () => {
-            window.location.href = `readCourse.html?title=${encodeURIComponent(course.title)}`;
+            window.location.href = `readCourse.html?id=${encodeURIComponent(course.id)}`;
           });
           results.appendChild(card);
         });

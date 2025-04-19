@@ -15,24 +15,42 @@
 
   <div class="max-w-2xl mx-auto space-y-6">
     <h1 id="courseTitle" class="text-3xl font-bold text-center"></h1>
-    <div id="quizList" class="space-y-4"></div>
+    <div id="lectureList" class="space-y-4"></div>
   </div>
 
   <script>
     const exampleCourse = {
       "title": "Error reading course",
-      "quizzes": [ /* … your example quizzes … */ ]
+      "lectures": [
+        {
+          "0": {"type":"title","content":"sssss"},
+          "1": {"type":"text","content":"asdfsf"},
+          "2": {"type":"quiz","question":"sdf","options":["dd","ff","w"],"answer":"dd"},
+          "id":"1001","name":"dfdf"
+        },
+        {
+          "0": {"type":"title","content":"sdfsdfsf"},
+          "1": {"type":"quiz","question":"dd","options":["sfsf","ee","sfsf"],"answer":"ff"},
+          "2": {"type":"quiz","question":"ad","options":["ee","aaaa","ff"],"answer":"ddd"},
+          "id":"10011","name":"Lecture 10011fdf"
+        },
+        {
+          "0": {"type":"title","content":"fff"},
+          "1": {"type":"text","content":"eeeee"},
+          "id":"10012","name":"Lecture 10012"
+        }
+      ]
     };
 
     const params = new URLSearchParams(window.location.search);
-    const titleParam = params.get('id');
+    const idParam = params.get('id');
 
     async function loadCourse() {
       let course;
-      if (titleParam) {
+      if (idParam) {
         // Fetch real course from backend
         try {
-          const res = await fetch(`get-course.php?id=${encodeURIComponent(titleParam)}`);
+          const res = await fetch(`get-course.php?id=${encodeURIComponent(idParam)}`);
           if (!res.ok) throw new Error(res.status);
           course = await res.json();
         } catch (err) {
@@ -40,7 +58,7 @@
           course = exampleCourse;
         }
       } else {
-        // No title in URL, use example
+        // No id in URL, use example
         course = exampleCourse;
       }
       renderCourse(course);
@@ -48,22 +66,22 @@
 
     function renderCourse(course) {
       document.getElementById("courseTitle").textContent = course.title;
-      const quizList = document.getElementById("quizList");
-      quizList.innerHTML = '';
-      course.quizzes.forEach(quizObj => {
+      const lectureList = document.getElementById("lectureList");
+      lectureList.innerHTML = '';
+      course.lectures.forEach(lectureObj => {
         const card = document.createElement("div");
         card.className = "bg-gray-800 p-4 rounded shadow space-y-3";
 
         const header = document.createElement("div");
         header.className = "flex justify-between items-center";
-        const name = quizObj.name || quizObj.customName || `Quiz ${quizObj.id}`;
+        const name = lectureObj.name || lectureObj.customName || `Lecture ${lectureObj.id}`;
         header.innerHTML = `
           <h2 class="text-xl font-semibold">${name}</h2>
-          <a href="readQuiz.html?quizId=${quizObj.id}"
-             class="text-blue-400 hover:underline text-sm">▶ View Quiz</a>
+          <a href="lectureViewer.html?lectureId=${lectureObj.id}"
+             class="text-blue-400 hover:underline text-sm">▶ View Lecture</a>
         `;
         card.append(header);
-        quizList.appendChild(card);
+        lectureList.appendChild(card);
       });
     }
 

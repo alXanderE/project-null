@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Share the quiz</title>
+  <title>Share the Course</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="dark bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-8">
   <div class="text-center max-w-md w-full">
     <h1 class="text-4xl font-bold text-gray-200 mb-6">
-      👨‍💻 Share the quiz
+      👨‍💻 Share the Course
     </h1>
 
     <!-- Search Box -->
@@ -28,9 +28,9 @@
         </button>
         <button
         id="createBtn"
-        class="bg-blue-600 text-white py-2  rounded-md hover:bg-blue-700 transition basis-1/5"
+        class="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition basis-1/5"
         >
-        ➕ create
+        ➕ Create
         </button>
     </div>
     <!-- Trending Courses -->
@@ -55,7 +55,7 @@
       window.location.href = 'courseEditor.html';
     });
 
-    // Load top 5 trending quizzes
+    // Load top 5 trending courses
     fetch('get-trending-courses.php')
     .then(res => res.json())
     .then(data => {
@@ -68,9 +68,9 @@
         card.innerHTML = `
           <h3 class="text-lg font-bold">${course.title}</h3>
         `;
-        // when clicked, go to readCourse with title param
+        // when clicked, go to readCourse with id param
         card.addEventListener('click', () => {
-          window.location.href = `readCourse.html?title=${encodeURIComponent(course.title)}`;
+          window.location.href = `readCourse.html?id=${encodeURIComponent(course.id)}`;
         });
         container.appendChild(card);
       });
@@ -78,8 +78,6 @@
     .catch(err => {
       console.error("Failed to load trending courses", err);
     });
-  
-
   </script>
 </body>
 </html>
