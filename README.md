@@ -3,8 +3,6 @@ Use Dark Mode for Optimal Experience
 
 # Demo Video
 
-## Demo Video
-
 [![Teach 4 All Demo Video](https://img.youtube.com/vi/CppC3Z4kbac/0.jpg)](https://youtu.be/CppC3Z4kbac)
 
 Click image above to view demo video
