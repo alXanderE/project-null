@@ -16,3 +16,8 @@ students and students can gain access to the content to learn.
 1. Connect to CPP wifi Eduroam
 2. Address to be given to judges at presentation
 3. You're ready to go!
+
+## Features to be added
+
+- Account logins
+- 
