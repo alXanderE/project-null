@@ -1,10 +1,25 @@
 # Teach 4 All
+Use Dark Mode for Optimal Experience
 
-![Teach 4 All Logo](crow-white.png)
+# Demo Video
+
+## Demo Video
+
+[![Teach 4 All Demo Video](https://img.youtube.com/vi/CppC3Z4kbac/0.jpg)](https://youtu.be/CppC3Z4kbac)
+
+Click image above to view demo video
+
+
+[![Teach 4 All Logo](crow-white.png)](http://10.110.155.183/project-null/templates/index.html)
+
+Click image above to view our project
+
+<img width="1728" alt="Home Page" src="https://github.com/user-attachments/assets/12e13bb2-39c2-4765-b022-cc5ef4934303" />
+
 
 Teach 4 All is a free open-source teaching tool for teachers and students to share lectures,
 quizzes, and information on various subjects. Teachers can upload courses to be viewed by 
-students and students can gain access to the content to learn.
+students. Students can access a course they want to view with the search bar.
 ## Features
 
 - User‑contributed courses  
@@ -16,3 +31,13 @@ students and students can gain access to the content to learn.
 1. Connect to CPP wifi Eduroam
 2. Address to be given to judges at presentation
 3. You're ready to go!
+
+## Features to be added
+
+- Account logins
+- Video Lecture uploads
+
+
+## Search function
+
+
