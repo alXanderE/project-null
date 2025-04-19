@@ -6,9 +6,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-6">
-    <a href="index.html" title="Back to Home" class="fixed top-4 left-4 text-sm bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow transition z-50">
-        <
-      </a>
+  <a href="index.html" title="Back to Home"
+     class="fixed top-4 left-4 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow transition z-50">
+    ⬅
+  </a>
   <div class="max-w-2xl mx-auto">
     <h1 class="text-3xl font-bold mb-6 text-center">🔍 Search Courses</h1>
 
@@ -55,7 +56,7 @@
       status.textContent = `Searching for "${query}"...`;
 
       try {
-        const res = await fetch('api/search-courses.php', {
+        const res = await fetch('search-courses.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ q: query })
@@ -71,14 +72,15 @@
         status.textContent = `Showing ${data.length} result(s) for "${query}":`;
 
         data.forEach(course => {
-          const div = document.createElement('div');
-          div.className = "bg-gray-800 p-4 rounded shadow";
-          div.innerHTML = `
+          const card = document.createElement('div');
+          card.className = "bg-gray-800 p-4 rounded shadow cursor-pointer hover:bg-gray-700 transition";
+          card.innerHTML = `
             <h2 class="text-xl font-semibold">${course.title}</h2>
-            <p class="text-gray-300 mt-1">${course.description}</p>
-            <a href="/editor.php?course_id=${course.id}" class="text-blue-400 hover:underline text-sm mt-2 inline-block">Edit Course</a>
           `;
-          results.appendChild(div);
+          card.addEventListener('click', () => {
+            window.location.href = `readCourse.html?title=${encodeURIComponent(course.title)}`;
+          });
+          results.appendChild(card);
         });
 
       } catch (err) {

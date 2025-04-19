@@ -56,24 +56,29 @@
     });
 
     // Load top 5 trending quizzes
-fetch('get-trending-courses.php')
-.then(res => res.json())
-.then(data => {
-  const container = document.getElementById('trendingCourses');
-  container.innerHTML = ''; // clear existing
-
-  data.forEach(course => {
-    const div = document.createElement('div');
-    div.className = "min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0";
-    div.innerHTML = `
-      <h3 class="text-lg font-bold">${course.title}</h3>
-    `;
-    container.appendChild(div);
-  });
-})
-.catch(err => {
-  console.error("Failed to load trending quizzes", err);
-});
+    fetch('get-trending-courses.php')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('trendingCourses');
+      container.innerHTML = ''; // clear existing
+  
+      data.forEach(course => {
+        const card = document.createElement('div');
+        card.className = "min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition";
+        card.innerHTML = `
+          <h3 class="text-lg font-bold">${course.title}</h3>
+        `;
+        // when clicked, go to readCourse with title param
+        card.addEventListener('click', () => {
+          window.location.href = `readCourse.html?title=${encodeURIComponent(course.title)}`;
+        });
+        container.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error("Failed to load trending courses", err);
+    });
+  
 
   </script>
 </body>
