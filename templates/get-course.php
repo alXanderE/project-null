@@ -9,21 +9,25 @@ if (!$conn) {
     exit;
 }
 
-// 2) Get and sanitize title
-if (!isset($_GET['title'])) {
+// 2) Get and validate id
+if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
     http_response_code(400);
-    echo json_encode(['error'=>'Missing title']);
+    echo json_encode(['error'=>'Missing or invalid id']);
     exit;
 }
-$title = $_GET['title'];
+$id = (int) $_GET['id'];
 
-// 3) Fetch quizzes_json from courses table
+// 3) Fetch title and quizzes_json from courses table
 $stmt = mysqli_prepare($conn,
-    "SELECT quizzes_json FROM courses WHERE title = ? LIMIT 1"
+    "SELECT title, quizzes_json
+     FROM courses
+     WHERE id = ?
+     LIMIT 1"
 );
-mysqli_stmt_bind_param($stmt, "s", $title);
+mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $quizzes_json);
+mysqli_stmt_bind_result($stmt, $title, $quizzes_json);
+
 if (!mysqli_stmt_fetch($stmt)) {
     http_response_code(404);
     echo json_encode(['error'=>'Course not found']);
@@ -31,12 +35,14 @@ if (!mysqli_stmt_fetch($stmt)) {
     mysqli_close($conn);
     exit;
 }
+
 mysqli_stmt_close($stmt);
 mysqli_close($conn);
 
-// 4) Decode and repackage
+// 4) Decode and return
 $quizzes = json_decode($quizzes_json, true);
 echo json_encode([
+    'id'      => $id,
     'title'   => $title,
     'quizzes' => $quizzes
 ]);
