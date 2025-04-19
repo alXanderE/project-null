@@ -9,51 +9,118 @@
     button { padding: 0.5rem 1rem; font-size: 1rem; margin-top: 0.5rem; }
     #status { margin-top: 1rem; font-style: italic; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 </head>
 <body>
   <h1>Content Maker (Server Stub)</h1>
 
-  <textarea id="contentBox" placeholder="Enter course content…"></textarea>
+  <body>
+    <h1>Content Maker</h1>
+  
+    <div id="moduleContainer"></div>
+  
+    <div style="margin-top: 1rem;">
+      <button onclick="addTextModule()">➕ Add Text</button>
+      <button onclick="addQuizModule()">➕ Add Quiz</button>
+      <button id="saveBtn">💾 Save</button>
+    </div>
+  
+    <div id="status" style="margin-top: 1rem;"></div>
+  </body>
+  
   <br/>
   <button id="saveBtn">Save to Server</button>
 
   <div id="status"></div>
 
   <script>
-    const textarea = document.getElementById('contentBox');
-    const btn      = document.getElementById('saveBtn');
-    const status   = document.getElementById('status');
+    const container = document.getElementById("moduleContainer");
+    const status = document.getElementById("status");
+    
+    new Sortable(container,{
+      animation: 150,
+      ghostClass:'ghost'
+    });
 
-    btn.addEventListener('click', async () => {
-      const content = textarea.value.trim();
-      if (!content) {
-        status.textContent = 'Please enter some content first.';
-        return;
-      }
-
-      status.textContent = 'Sending to server…';
-
+    function createDeleteButton() {
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "🗑️ Delete";
+      delBtn.style = "float: right; margin-top: -2rem;";
+      delBtn.onclick = function () {
+        const parent = delBtn.closest(".module");
+        container.removeChild(parent);
+      };
+      return delBtn;
+    }
+  
+    function addTextModule() {
+      const div = document.createElement("div");
+      div.className = "module";
+      div.style = "margin-bottom: 1rem; padding: 1rem; border: 1px solid #ccc;";
+      div.innerHTML = `
+        <h3 style="margin-top: 0;">Text Module</h3>
+        <textarea rows="4" style="width:100%;" placeholder="Write your content here..."></textarea>
+      `;
+      div.appendChild(createDeleteButton());
+      container.appendChild(div);
+    }
+  
+    function addQuizModule() {
+      const div = document.createElement("div");
+      div.className = "module";
+      div.style = "margin-bottom: 1rem; padding: 1rem; border: 1px solid #ccc;";
+      div.innerHTML = `
+        <h3 style="margin-top: 0;">Quiz Module</h3>
+        <input type="text" placeholder="Question?" style="width:80%;"><br>
+        <input type="text" placeholder="Option 1" style="width:80%;"><br>
+        <input type="text" placeholder="Option 2" style="width:80%;"><br>
+        <input type="text" placeholder="Option 3" style="width:80%;"><br>
+        <input type="text" placeholder="Correct Answer" style="width:80%;"><br>
+      `;
+      div.appendChild(createDeleteButton());
+      container.appendChild(div);
+    }
+  
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const modules = [];
+  
+      container.querySelectorAll('.module').forEach(mod => {
+        if (mod.querySelector("textarea")) {
+          modules.push({ type: "text", content: mod.querySelector("textarea").value });
+        } else if (mod.querySelector("input")) {
+          const inputs = mod.querySelectorAll("input");
+          modules.push({
+            type: "quiz",
+            question: inputs[0].value,
+            options: [inputs[1].value, inputs[2].value, inputs[3].value],
+            answer: inputs[4].value
+          });
+        }
+      });
+  
+      status.textContent = 'Saving to server…';
+  
       try {
-        // POST plain text to /echo
-        const res = await fetch('/echo', {
+        const res = await fetch('/api/courses/1/content', {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
-          body: content
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ modules })
         });
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        // The server echoes back exactly what we sent
-        const echoed = await res.text();
-
-        // Replace textarea with the echoed content
-        textarea.value = echoed;
-        status.textContent = '✅ Server echoed your content!';
+  
+        if (!res.ok) throw new Error(res.status);
+  
+        const data = await res.json();
+        status.textContent = '✅ ' + data.message;
       } catch (err) {
         console.error(err);
-        status.textContent = '❌ Error talking to server.';
+        status.textContent = '❌ Save failed.';
       }
     });
+
+    
   </script>
+  
+  
 </body>
 </html>
