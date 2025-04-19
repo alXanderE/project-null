@@ -24,11 +24,6 @@ students. Students can access a course they want to view with the search bar.
 - Built‑in quiz creation and auto‑grading  
 - Progress tracking and badges
 
-## Getting Started
-
-1. Connect to CPP wifi Eduroam
-2. Address to be given to judges at presentation
-3. You're ready to go!
 
 ## Features to be added
 
