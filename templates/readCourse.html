@@ -25,14 +25,14 @@
     };
 
     const params = new URLSearchParams(window.location.search);
-    const titleParam = params.get('title');
+    const titleParam = params.get('id');
 
     async function loadCourse() {
       let course;
       if (titleParam) {
         // Fetch real course from backend
         try {
-          const res = await fetch(`get-course.php?title=${encodeURIComponent(titleParam)}`);
+          const res = await fetch(`get-course.php?id=${encodeURIComponent(titleParam)}`);
           if (!res.ok) throw new Error(res.status);
           course = await res.json();
         } catch (err) {
