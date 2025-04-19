@@ -208,7 +208,7 @@
       status.textContent = 'Saving to server…';
 
       try {
-        const res = await fetch('/api/courses/1/content', {
+        const res = await fetch('fetch-json-and-store.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ modules })
