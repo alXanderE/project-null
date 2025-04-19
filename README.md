@@ -10,7 +10,9 @@ Use Dark Mode for Optimal Experience
 Click image above to view demo video
 
 
-![Teach 4 All Logo](crow-white.png)
+[![Teach 4 All Logo](crow-white.png)](http://10.110.155.183/project-null/templates/index.html)
+
+Click image above to view our project
 
 <img width="1728" alt="Home Page" src="https://github.com/user-attachments/assets/12e13bb2-39c2-4765-b022-cc5ef4934303" />
 
