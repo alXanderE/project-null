@@ -14,9 +14,9 @@
   </style>
 </head>
 <body class="dark bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
-  <a onclick="window.history.back();" href="javascript:void(0)" title="Go Back" class="fixed top-4 left-4 text-sm bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow transition z-50">
-    <
-  </a>
+  <button id="goBackBtn" title="Go Back" class="fixed top-4 left-4 text-sm bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow transition z-50">
+    &lt;
+  </button>
   
   <div class="w-full max-w-2xl pt-[-8rem]">
     <h1 class="text-3xl font-bold mb-6 text-center">📚 Content Maker</h1>
@@ -319,6 +319,10 @@
     const quizId = params.get('quizId'); // read quizId from URL
 
     document.getElementById('saveBtn').addEventListener('click', () => {
+      saveModulesData();
+    });
+
+    function saveModulesData(){
       const modules = [];
       container.querySelectorAll('.module').forEach(mod => {
         if (mod.classList.contains("title-module")) {
@@ -358,8 +362,7 @@
         localStorage.setItem('quizModules', JSON.stringify(modules));
         status.textContent = '✅ Saved locally.';
       }
-    });
-
+    }
     // Initialization: load modules if quizId exists, otherwise add title module
     if (quizId) {
       const loadedData = localStorage.getItem('quiz_' + quizId);
@@ -374,6 +377,11 @@
     } else {
       addTitleModule();
     }
+
+    document.getElementById("goBackBtn").addEventListener("click", () => {
+      saveModulesData(); // Save before going back
+      window.history.back();
+    });
   </script>
 </body>
 </html>

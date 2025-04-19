@@ -56,7 +56,7 @@
     });
 
     // Load top 5 trending quizzes
-fetch('api/get-trending-courses.php')
+fetch('get-trending-courses.php')
 .then(res => res.json())
 .then(data => {
   const container = document.getElementById('trendingCourses');
@@ -67,8 +67,6 @@ fetch('api/get-trending-courses.php')
     div.className = "min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0";
     div.innerHTML = `
       <h3 class="text-lg font-bold">${course.title}</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-300">${course.description}</p>
-      <a href="/readCourse.html?course_id=${course.id}" class="text-blue-500 hover:underline text-sm mt-2 inline-block">Start</a>
     `;
     container.appendChild(div);
   });
