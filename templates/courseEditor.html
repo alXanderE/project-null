@@ -97,7 +97,7 @@
   
     // Delete button
     const delBtn = document.createElement("button");
-    delBtn.textContent = "🗑️";
+    delBtn.textContent = "🗑️ Delete";
     delBtn.className = "text-red-400 hover:underline text-sm";
     delBtn.onclick = () => {
       // remove this lecture from the array
@@ -106,7 +106,12 @@
       renderLectures();
     };
   
-    topRow.append(dragDiv, lectureLabel, editBtn, delBtn);
+    // ← New: wrap both in a flex container
+  const btnGroup = document.createElement("div");
+  btnGroup.className = "flex items-center space-x-2";
+  btnGroup.append(editBtn, delBtn);
+
+    topRow.append(dragDiv, lectureLabel, btnGroup);
   
     // Name input
     const nameInput = document.createElement("input");
