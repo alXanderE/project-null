@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Language Learner</title>
+</head>
+<body>
+    <h1>Programming Language Learner</h1>
+    <input type="text" name="simple_text" placeholder="Enter course to search">
+    <button id="searchBtn">Search</button>
+
+    <script>
+        const searchBtn = document.getElementById('searchBtn');
+
+        searchBtn.addEventListener('click', async () => {
+            const course = document.querySelector('input[name="simple_text"]').value.trim();
+            if (!course) {
+                alert('Please enter a course name.');
+                return;
+            }
+            window.location.href = '/editor';
+        });
+
+    </script>
+</body>
+</html>
