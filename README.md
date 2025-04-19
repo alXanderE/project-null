@@ -8,6 +8,7 @@ Use Dark Mode for Optimal Experience
 [![Teach 4 All Demo Video](https://img.youtube.com/vi/CppC3Z4kbac/0.jpg)](https://youtu.be/CppC3Z4kbac)
 Click image above to view demo video
 
+
 ![Teach 4 All Logo](crow-white.png)
 
 <img width="1728" alt="Home Page" src="https://github.com/user-attachments/assets/12e13bb2-39c2-4765-b022-cc5ef4934303" />
