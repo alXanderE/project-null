@@ -1,73 +1,73 @@
 <?php
 header('Content-Type: application/json');
 
-// 1) Connect
+// 1) Connect to MySQL
 $conn = mysqli_connect("localhost", "root", "", "mydatabase");
 if (!$conn) {
     http_response_code(500);
     echo json_encode(['error' => 'Database connection failed']);
     exit;
 }
+mysqli_set_charset($conn, "utf8mb4");
 
 // 2) Read JSON body
 $input = json_decode(file_get_contents('php://input'), true);
-$q     = trim($input['q'] ?? '');
-$max   = 20;
+$q = trim($input['q'] ?? '');
+$max = 20;
 
 if ($q === '') {
     echo json_encode([]);
     exit;
 }
 
-// 3) Step 1: exact matches
-$exactStmt = mysqli_prepare($conn,
-    "SELECT id, title
-       FROM courses
-      WHERE title = ?
-      LIMIT $max"
+// 3) Search with partial matches
+$searchTerm = "%$q%";
+$stmt = mysqli_prepare($conn,
+    "SELECT id, title FROM courses WHERE title LIKE ? ORDER BY title LIMIT ?"
 );
-mysqli_stmt_bind_param($exactStmt, "ssi", $q, $q, $max);
-mysqli_stmt_execute($exactStmt);
-mysqli_stmt_bind_result($exactStmt, $id, $title, $desc);
+mysqli_stmt_bind_param($stmt, "si", $searchTerm, $max);
+if (!mysqli_stmt_execute($stmt)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Query execution failed: ' . mysqli_error($conn)]);
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    exit;
+}
+mysqli_stmt_bind_result($stmt, $id, $title);
 
 $courses = [];
-$ids      = [];
-while (mysqli_stmt_fetch($exactStmt)) {
-    $courses[] = ['id'=>$id,'title'=>$title];
-    $ids[]      = $id;
+while (mysqli_stmt_fetch($stmt)) {
+    $courses[] = ['id' => (int)$id, 'title' => $title];
 }
-mysqli_stmt_close($exactStmt);
+mysqli_stmt_close($stmt);
 
-// 4) Step 2: fill with next courses up to $max
+// 4) Fill with additional courses if needed
 $remaining = $max - count($courses);
 if ($remaining > 0) {
-    // Build IN clause of already‑seen IDs (if any)
+    $ids = array_map(function($course) { return $course['id']; }, $courses);
     if (count($ids) > 0) {
         $in = implode(',', array_map('intval', $ids));
-        $sql = "
-          SELECT id, title
-            FROM courses
-           WHERE id NOT IN ($in)
-           LIMIT $remaining
-        ";
+        $stmt = mysqli_prepare($conn,
+            "SELECT id, title FROM courses WHERE id NOT IN ($in) ORDER BY title LIMIT ?"
+        );
     } else {
-        $sql = "
-          SELECT id, title
-            FROM courses
-           LIMIT $remaining
-        ";
+        $stmt = mysqli_prepare($conn,
+            "SELECT id, title FROM courses ORDER BY title LIMIT ?"
+        );
     }
-
-    $res = mysqli_query($conn, $sql);
-    if ($res) {
-        while ($row = mysqli_fetch_assoc($res)) {
-            $courses[] = [
-                'id'          => (int)$row['id'],
-                'title'       => $row['title'],
-            ];
-        }
-        mysqli_free_result($res);
+    mysqli_stmt_bind_param($stmt, "i", $remaining);
+    if (!mysqli_stmt_execute($stmt)) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Fallback query failed: ' . mysqli_error($conn)]);
+        mysqli_stmt_close($stmt);
+        mysqli_close($conn);
+        exit;
     }
+    mysqli_stmt_bind_result($stmt, $id, $title);
+    while (mysqli_stmt_fetch($stmt)) {
+        $courses[] = ['id' => (int)$id, 'title' => $title];
+    }
+    mysqli_stmt_close($stmt);
 }
 
 mysqli_close($conn);
