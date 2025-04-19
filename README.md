@@ -23,4 +23,9 @@ students and students can gain access to the content to learn.
 ## Features to be added
 
 - Account logins
-- 
+- Video Lecture uploads
+
+
+## Search function
+
+
