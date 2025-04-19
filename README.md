@@ -38,6 +38,3 @@ students. Students can access a course they want to view with the search bar.
 - Video Lecture uploads
 
 
-## Search function
-
-
