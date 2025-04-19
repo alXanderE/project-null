@@ -19,7 +19,7 @@ $id = (int) $_GET['id'];
 
 // 3) Fetch quizzes_json from courses table
 $stmt = mysqli_prepare($conn,
-    "SELECT lectures_json FROM courses WHERE title = ? LIMIT 1"
+    "SELECT lectures_json FROM courses WHERE id = ? LIMIT 1"
 );
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
@@ -39,5 +39,6 @@ mysqli_close($conn);
 $lectures = json_decode($lectures_json, true);
 echo json_encode([
     'title'    => $title,
+    'id'       => $id,
     'lectures' => $lectures
 ]);
