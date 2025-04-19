@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Content Maker</title>
+  <title>Make a Lecture</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -19,8 +19,6 @@
   </button>
   
   <div class="w-full max-w-2xl pt-[-8rem]">
-    <h1 class="text-3xl font-bold mb-6 text-center">📚 Content Maker</h1>
-
     
     <div id="moduleContainer" class="grid gap-4"></div>
 
@@ -40,7 +38,8 @@
     // Global variables and initialization
     const container = document.getElementById("moduleContainer");
     const status = document.getElementById("status");
-
+    
+    
     // Set up Sortable functionality
     new Sortable(container, {
       animation: 150,

@@ -29,7 +29,7 @@
     <div id="quizList" class="flex flex-col gap-4"></div>
 
     <div class="flex gap-2">
-      <button id="addQuizBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">➕ Add Quiz</button>
+      <button id="addQuizBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">➕ Add Lecture</button>
       <button id="saveBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md">💾 Save Course</button>
     </div>
 
@@ -77,46 +77,58 @@
     const card = document.createElement("div");
     card.className = "quiz-item bg-gray-800 p-4 rounded-md shadow flex flex-col gap-2";
     card.dataset.quizId = id;
-
+  
+    // Top row with drag, label, edit and delete
     const topRow = document.createElement("div");
     topRow.className = "flex justify-between items-center";
-
+  
     const dragDiv = document.createElement("div");
     dragDiv.className = "text-sm text-gray-400 drag-handle cursor-move";
     dragDiv.textContent = "↕ Drag";
-
+  
     const quizLabel = document.createElement("div");
     quizLabel.className = "text-lg font-semibold";
     quizLabel.textContent = customName;
-
+  
     const editBtn = document.createElement("a");
     editBtn.href = `quizEditor.html?quizId=${id}`;
     editBtn.textContent = "✏️ Edit";
     editBtn.className = "text-blue-400 hover:underline text-sm";
-
-    topRow.append(dragDiv, quizLabel, editBtn);
-
+  
+    // Delete button
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "🗑️";
+    delBtn.className = "text-red-400 hover:underline text-sm";
+    delBtn.onclick = () => {
+      // remove this quiz from the array
+      course.quizzes = course.quizzes.filter(q => q.id !== id);
+      saveCourse();
+      renderQuizzes();
+    };
+  
+    topRow.append(dragDiv, quizLabel, editBtn, delBtn);
+  
+    // Name input
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.value = customName;
     nameInput.className = "quiz-name-input bg-gray-700 text-white p-1 rounded placeholder-gray-400";
-
-    // Update customName in course.quizzes on every input
     nameInput.addEventListener("input", () => {
       quiz.customName = nameInput.value;
       quizLabel.textContent = nameInput.value;
       saveCourse();
     });
-
+  
     card.append(topRow, nameInput);
     quizList.appendChild(card);
   }
+  
 
 
 
   // ——— Button Handlers ———
   document.getElementById("addQuizBtn").addEventListener("click", () => {
-    const newQuiz = { id: nextQuizId++, customName: `Quiz ${nextQuizId-1}` };
+    const newQuiz = { id: nextQuizId++, customName: `Lecture ${nextQuizId-1}` };
     course.quizzes.push(newQuiz);
     saveCourse();
     renderQuizzes();
