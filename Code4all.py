@@ -1,7 +1,22 @@
 from flask import Flask, request, render_template, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost/phpmyadmin"
+db = SQLAlchemy(app)
 
+class Ping(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(64))
+
+# Write test row to DB immediately
+with app.app_context():
+    db.create_all()
+    test_entry = Ping(message="✅ Connected successfully")
+    db.session.add(test_entry)
+    db.session.commit()
+    print("✅ Test row written to DB.")
+    
 # Landing page
 @app.route("/")
 def landing():
