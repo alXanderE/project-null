@@ -17,13 +17,13 @@ if (!isset($_GET['title'])) {
 }
 $title = $_GET['title'];
 
-// 3) Fetch quizzes_json from courses table
+// 3) Fetch lectures_json from courses table
 $stmt = mysqli_prepare($conn,
-    "SELECT quizzes_json FROM courses WHERE title = ? LIMIT 1"
+    "SELECT lectures_json FROM courses WHERE title = ? LIMIT 1"
 );
 mysqli_stmt_bind_param($stmt, "s", $title);
 mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $quizzes_json);
+mysqli_stmt_bind_result($stmt, $lectures_json);
 if (!mysqli_stmt_fetch($stmt)) {
     http_response_code(404);
     echo json_encode(['error'=>'Course not found']);
@@ -35,8 +35,8 @@ mysqli_stmt_close($stmt);
 mysqli_close($conn);
 
 // 4) Decode and repackage
-$quizzes = json_decode($quizzes_json, true);
+$lectures = json_decode($lectures_json, true);
 echo json_encode([
-    'title'   => $title,
-    'quizzes' => $quizzes
+    'title'    => $title,
+    'lectures' => $lectures
 ]);

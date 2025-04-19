@@ -15,17 +15,16 @@
 </head>
 <body class="dark bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
   <button id="goBackBtn" title="Go Back" class="fixed top-4 left-4 text-sm bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow transition z-50">
-    &lt;
+    <
   </button>
   
   <div class="w-full max-w-2xl pt-[-8rem]">
-    
     <div id="moduleContainer" class="grid gap-4"></div>
 
     <!-- Control buttons -->
     <div class="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-700 px-4 py-3 flex flex-wrap justify-center gap-2 z-50">
       <button onclick="addTextModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Text</button>
-      <button onclick="addLectureModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Lecture</button>
+      <button onclick="addQuizModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Quiz</button>
       <button onclick="addMediaDropModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">📂 Add Media</button>
       <button id="saveBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md transition w-full sm:w-auto">💾 Save</button>
     </div>
@@ -38,7 +37,6 @@
     // Global variables and initialization
     const container = document.getElementById("moduleContainer");
     const status = document.getElementById("status");
-    
     
     // Set up Sortable functionality
     new Sortable(container, {
@@ -116,7 +114,7 @@
       container.appendChild(div);
     }
 
-    function addLectureModule() {
+    function addQuizModule() {
       const div = document.createElement("div");
       div.className = "module bg-gray-800 p-4 rounded-md shadow";
 
@@ -129,7 +127,7 @@
 
       const title = document.createElement("h3");
       title.className = "text-lg font-semibold";
-      title.textContent = "❓ Lecture Module";
+      title.textContent = "❓ Quiz Module";
 
       header.append(title, drag);
 
@@ -255,7 +253,7 @@
           textarea.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
           textarea.value = mod.content;
           element.append(header, textarea, createDeleteButton());
-        } else if (mod.type === "lecture") {
+        } else if (mod.type === "quiz") {
           element = document.createElement("div");
           element.className = "module bg-gray-800 p-4 rounded-md shadow";
           const header = document.createElement("div");
@@ -265,7 +263,7 @@
           drag.textContent = "↕ Drag";
           const title = document.createElement("h3");
           title.className = "text-lg font-semibold";
-          title.textContent = "❓ Lecture Module";
+          title.textContent = "❓ Quiz Module";
           header.append(title, drag);
           const inputQuestion = document.createElement("input");
           inputQuestion.type = "text";
@@ -315,13 +313,13 @@
 
     // Event Listeners and Save Functionality
     const params = new URLSearchParams(window.location.search);
-    const lectureId = params.get('lectureId'); // read lectureId from URL
+    const lectureId = params.get('lectureId');
 
     document.getElementById('saveBtn').addEventListener('click', () => {
       saveModulesData();
     });
 
-    function saveModulesData(){
+    function saveModulesData() {
       const modules = [];
       container.querySelectorAll('.module').forEach(mod => {
         if (mod.classList.contains("title-module")) {
@@ -335,7 +333,7 @@
         } else if (mod.querySelector("input[type='text']") && mod.querySelectorAll("input").length === 5) {
           const inputs = mod.querySelectorAll("input");
           modules.push({
-            type: "lecture",
+            type: "quiz",
             question: inputs[0].value,
             options: [inputs[1].value, inputs[2].value, inputs[3].value],
             answer: inputs[4].value
@@ -353,7 +351,6 @@
           }
         }
       });
-      // Save modules data using lectureId key if available
       if (lectureId) {
         localStorage.setItem('lecture_' + lectureId, JSON.stringify(modules));
         status.textContent = '✅ Saved locally.';
@@ -362,6 +359,7 @@
         status.textContent = '✅ Saved locally.';
       }
     }
+
     // Initialization: load modules if lectureId exists, otherwise add title module
     if (lectureId) {
       const loadedData = localStorage.getItem('lecture_' + lectureId);
@@ -378,7 +376,7 @@
     }
 
     document.getElementById("goBackBtn").addEventListener("click", () => {
-      saveModulesData(); // Save before going back
+      saveModulesData();
       window.history.back();
     });
   </script>

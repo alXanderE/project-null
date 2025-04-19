@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Quiz Viewer</title>
+  <title>Lecture Viewer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -18,17 +18,15 @@
   >🔄 Try Again</button>
 
   <div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold mb-4 text-center" id="customQuizName">📖 Saved Quiz</h1>
-    <div id="courseContent" class="space-y-6"></div>
+    <h1 class="text-3xl font-bold mb-4 text-center" id="customLectureName">📖 Saved Lecture</h1>
+    <div id="lectureContent" class="space-y-6"></div>
   </div>
-
-  
 
   <script>
     // 1) Load course from localStorage or fallback to example
     const exampleCourse = {
       "title": "sdf",
-      "quizzes": [
+      "lectures": [
         {
           "0": {"type":"title","content":"sssss"},
           "1": {"type":"text","content":"asdfsf"},
@@ -39,44 +37,48 @@
           "0": {"type":"title","content":"sdfsdfsf"},
           "1": {"type":"quiz","question":"dd","options":["sfsf","ee","sfsf"],"answer":"ff"},
           "2": {"type":"quiz","question":"ad","options":["ee","aaaa","ff"],"answer":"ddd"},
-          "id":"10011","name":"Quiz 10011fdf"
+          "id":"10011","name":"Lecture 10011fdf"
         },
         {
           "0": {"type":"title","content":"fff"},
           "1": {"type":"text","content":"eeeee"},
-          "id":"10012","name":"Quiz 10012"
+          "id":"10012","name":"Lecture 10012"
         }
       ]
     };
-    const course = JSON.parse(localStorage.getItem('course')||JSON.stringify(exampleCourse));
+    const course = JSON.parse(localStorage.getItem('course') || JSON.stringify(exampleCourse));
 
-    // 2) Grab quizId from URL
+    // 2) Grab lectureId from URL
     const params = new URLSearchParams(window.location.search);
-    const quizId = params.get('quizId');
+    const lectureId = params.get('lectureId');
 
-    // 3) Find the quiz object
-    const quizObj = course.quizzes.find(q => String(q.id) === quizId);
-    if (!quizObj) {
-      document.getElementById('courseContent').textContent = `❌ Quiz ${quizId} not found.`;
-      throw new Error(`Quiz ${quizId} not found`);
+    // 3) Find the lecture object
+    const lectureObj = course.lectures.find(l => String(l.id) === lectureId);
+    if (!lectureObj) {
+      document.getElementById('lectureContent').textContent = `❌ Lecture ${lectureId} not found.`;
+      throw new Error(`Lecture ${lectureId} not found`);
     }
     
-    // Set custom quiz name from the updated customName property
-    document.getElementById('customQuizName').textContent = quizObj.name || "Quiz";
+    // Set custom lecture name from the updated name property
+    document.getElementById('customLectureName').textContent = lectureObj.name || "Lecture";
 
     // 4) Build modules array from numeric keys
-    const modules = Object.keys(quizObj)
-      .filter(k=>/^\d+$/.test(k))
-      .sort((a,b)=>a-b)
-      .map(k=>quizObj[k]);
+    const modules = Object.keys(lectureObj)
+      .filter(k => /^\d+$/.test(k))
+      .sort((a, b) => a - b)
+      .map(k => lectureObj[k]);
 
-    // 5) Render exactly your existing logic
-    const content = document.getElementById('courseContent');
+    // 5) Render modules
+    const content = document.getElementById('lectureContent');
     modules.forEach((mod, index) => {
       const div = document.createElement("div");
       div.className = "bg-gray-800 p-4 rounded-md shadow";
 
-      if (mod.type === "text") {
+      if (mod.type === "title") {
+        div.innerHTML = `
+          <h2 class="text-xl font-semibold text-gray-200">${mod.content}</h2>
+        `;
+      } else if (mod.type === "text") {
         div.innerHTML = `
           <p class="text-gray-200 whitespace-pre-wrap">${mod.content}</p>
         `;
@@ -110,7 +112,7 @@
         });
       } else if (mod.type === "media") {
         const isImage = mod.mediaType === "image";
-        const src = `/uploads/${mod.fileName}`;
+        const src = `/Uploads/${mod.fileName}`;
         div.innerHTML = isImage
           ? `<img src="${src}" alt="${mod.fileName}" class="rounded w-full max-h-96 object-contain" />`
           : `<video controls class="w-full max-h-96 rounded"><source src="${src}" type="video/mp4" /></video>`;
