@@ -7,7 +7,7 @@
 
 Teach 4 All is a free open-source teaching tool for teachers and students to share lectures,
 quizzes, and information on various subjects. Teachers can upload courses to be viewed by 
-students and students can gain access to the content to learn.
+students. Students can access a course they want to view with the search bar.
 ## Features
 
 - User‑contributed courses  
