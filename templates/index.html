@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Programming Language Learner</title>
+  <title>Share the quiz</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="dark bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-8">
   <div class="text-center max-w-md w-full">
     <h1 class="text-4xl font-bold text-gray-200 mb-6">
-      👨‍💻 Programming Language Learner
+      👨‍💻 Share the quiz
     </h1>
 
     <!-- Search Box -->
@@ -35,30 +35,11 @@
     </div>
     <!-- Trending Courses -->
     <div class="mt-8 text-left">
-      <h2 class="text-xl font-semibold text-gray-200 mb-2">🔥 Trending Courses</h2>
-        <div class ="flex overflow-x-auto space-x-4 pb-2">
-            <!-- Course Card 1 -->
-            <div class="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0">
-                <h3 class="text-lg font-bold">🐍 Learn Python</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-300">Basics to OOP in Python</p>
-                <a href="/editor?course=Python" class="text-blue-500 hover:underline text-sm mt-2 inline-block">Start</a>
-            </div>
-
-            <!-- Course Card 2 -->
-            <div class="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0">
-                <h3 class="text-lg font-bold">🌐 JavaScript 101</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-300">Build dynamic websites</p>
-                <a href="/editor?course=JavaScript" class="text-blue-500 hover:underline text-sm mt-2 inline-block">Start</a>
-            </div>
-
-            <!-- Course Card 3 -->
-            <div class="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0">
-                <h3 class="text-lg font-bold">💻 C++ Fundamentals</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-300">Master memory and STL</p>
-                <a href="/editor?course=C%2B%2B" class="text-blue-500 hover:underline text-sm mt-2 inline-block">Start</a>
-            </div>
+        <h2 class="text-xl font-semibold text-gray-200 mb-2">🔥 Trending Courses</h2>
+        <div id="trendingCourses" class="flex overflow-x-auto space-x-4 pb-2">
+          <!-- Cards will be injected here -->
         </div>
-    </div>
+      </div>
   </div>
 
   <script>
@@ -66,16 +47,36 @@
     const createBtn = document.getElementById('createBtn');
     searchBtn.addEventListener('click', () => {
       const course = document.querySelector('input[name="simple_text"]').value.trim();
-      if (!course) {
-        alert('Please enter a course name.');
-        return;
-      }
-      window.location.href = `/editor?course=${encodeURIComponent(course)}`;
+        if (!course) return; // Do nothing if input is empty
+      window.location.href = `search.html?q=${encodeURIComponent(course)}`;
     });
 
     createBtn.addEventListener('click', () => {
-      window.location.href = '/editor';
+      window.location.href = 'courseEditor.html';
     });
+
+    // Load top 5 trending quizzes
+fetch('api/get-trending-courses.php')
+.then(res => res.json())
+.then(data => {
+  const container = document.getElementById('trendingCourses');
+  container.innerHTML = ''; // clear existing
+
+  data.forEach(course => {
+    const div = document.createElement('div');
+    div.className = "min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0";
+    div.innerHTML = `
+      <h3 class="text-lg font-bold">${course.title}</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-300">${course.description}</p>
+      <a href="/readCourse.html?course_id=${course.id}" class="text-blue-500 hover:underline text-sm mt-2 inline-block">Start</a>
+    `;
+    container.appendChild(div);
+  });
+})
+.catch(err => {
+  console.error("Failed to load trending quizzes", err);
+});
+
   </script>
 </body>
 </html>

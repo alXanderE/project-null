@@ -1,76 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"/>
   <title>Course Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-6">
+  <!-- Back to Editor -->
+  <a href="index.html" title="Back to Home"
+     class="fixed top-4 left-4 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded shadow z-50">
+    ⬅ Back
+  </a>
+
   <div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold mb-4 text-center">📖 Saved Course</h1>
-    <div id="courseContent" class="space-y-6"></div>
+    <h1 id="courseTitle" class="text-3xl font-bold text-center"></h1>
+    <div id="quizList" class="space-y-4"></div>
   </div>
 
   <script>
-    // Example saved JSON (replace with real fetch call later)
-    const course = {
-      "modules": [
+    // 1) Example fallback
+    const exampleCourse = {
+      "title": "sdf",
+      "quizzes": [
         {
-          "type": "quiz",
-          "question": "What is the capital of France?",
-          "options": ["Paris", "Berlin", "Madrid"],
-          "answer": "Paris"
+          "0": {"type":"title","content":"sssss"},
+          "1": {"type":"text","content":"asdfsf"},
+          "2": {"type":"quiz","question":"sdf","options":["dd","ff","w"],"answer":"e"},
+          "id":"1001","name":"dfdf"
         },
         {
-          "type": "text",
-          "content": "Welcome to the course! This is an introduction."
+          "0": {"type":"title","content":"sdfsdfsf"},
+          "1": {"type":"quiz","question":"dd","options":["sfsf","ee","sfsf"],"answer":"ff"},
+          "2": {"type":"quiz","question":"ad","options":["ee","aaaa","ff"],"answer":"ddd"},
+          "id":"10011","name":"Quiz 10011fdf"
         },
         {
-          "type": "media",
-          "fileName": "sample.jpg",
-          "mediaType": "image"
+          "0": {"type":"title","content":"fff"},
+          "1": {"type":"text","content":"eeeee"},
+          "id":"10012","name":"Quiz 10012"
         }
       ]
     };
 
-    const content = document.getElementById('courseContent');
+    // 2) Load from localStorage or fallback
+    const course = JSON.parse(localStorage.getItem("course") || JSON.stringify(exampleCourse));
 
-    course.modules.forEach(mod => {
-      const div = document.createElement("div");
-      div.className = "bg-gray-800 p-4 rounded-md shadow";
+    // 3) Render title
+    document.getElementById("courseTitle").textContent = course.title;
 
-      if (mod.type === "text") {
-        div.innerHTML = `
-          <h2 class="text-lg font-semibold mb-2">📝 Text Module</h2>
-          <p class="text-gray-200 whitespace-pre-wrap">${mod.content}</p>
-        `;
+    // 4) Render each quiz card
+    const quizList = document.getElementById("quizList");
+    course.quizzes.forEach(quizObj => {
+      const card = document.createElement("div");
+      card.className = "bg-gray-800 p-4 rounded shadow space-y-3";
 
-      } else if (mod.type === "quiz") {
-        const optionsHtml = mod.options.map(opt =>
-          `<li class="pl-2">🔹 ${opt}</li>`
-        ).join("");
-
-        div.innerHTML = `
-          <h2 class="text-lg font-semibold mb-2">❓ Quiz Module</h2>
-          <p class="mb-2 font-medium text-gray-300">${mod.question}</p>
-          <ul class="text-gray-400 list-disc ml-5">${optionsHtml}</ul>
-          <p class="text-green-400 mt-2">✅ Answer: <strong>${mod.answer}</strong></p>
-        `;
-
-      } else if (mod.type === "media") {
-        const isImage = mod.mediaType === "image";
-        const src = `/uploads/${mod.fileName}`; // Make sure Flask serves this!
-        div.innerHTML = `
-          <h2 class="text-lg font-semibold mb-2">📂 Media Module</h2>
-          ${isImage
-            ? `<img src="${src}" alt="${mod.fileName}" class="rounded w-full max-h-96 object-contain" />`
-            : `<video controls class="w-full max-h-96 rounded"><source src="${src}" type="video/mp4" /></video>`
-          }
-        `;
-      }
-
-      content.appendChild(div);
+      const header = document.createElement("div");
+      header.className = "flex justify-between items-center";
+      const name = quizObj.name || quizObj.customName || `Quiz ${quizObj.id}`;
+      header.innerHTML = `
+        <h2 class="text-xl font-semibold">${name}</h2>
+        <a href="readQuiz.html?quizId=${quizObj.id}"
+           class="text-blue-400 hover:underline text-sm">▶ View Quiz</a>
+      `;
+      card.append(header);
+      
+      quizList.appendChild(card);
     });
   </script>
 </body>

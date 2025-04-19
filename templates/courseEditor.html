@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Course Editor</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    .sortable-ghost {
+      opacity: 0.6;
+      background-color: #374151; /* Tailwind gray-700 */
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-6">
+  <button id="goBackBtn" class="fixed top-4 left-4 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded z-50">
+    Go Back
+  </button>
+  <div class="max-w-2xl mx-auto space-y-6">
+    <h1 class="text-3xl font-bold text-center">📘 Create a Course</h1>
+
+    <input id="courseTitle"
+      type="text"
+      placeholder="Course Title"
+      class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400"
+    />
+
+    <div id="quizList" class="flex flex-col gap-4"></div>
+
+    <div class="flex gap-2">
+      <button id="addQuizBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">➕ Add Quiz</button>
+      <button id="saveBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md">💾 Save Course</button>
+    </div>
+
+    <p id="status" class="text-sm text-gray-400 italic mt-2"></p>
+  </div>
+
+  <script>
+  // ——— Course State Management ———
+  let course = null;
+  let nextQuizId = 1000;
+
+  function loadCourse() {
+    course = JSON.parse(localStorage.getItem("course") || '{"title":"","quizzes":[]}');
+    // fix nextQuizId
+    course.quizzes.forEach(q => {
+      if (q.id >= nextQuizId) nextQuizId = q.id + 1;
+    });
+    document.getElementById("courseTitle").value = course.title;
+  }
+
+  function saveCourse() {
+    localStorage.setItem("course", JSON.stringify(course));
+  }
+
+  // ——— Rendering & Interactions ———
+  const quizList = document.getElementById("quizList");
+  function renderQuizzes() {
+    quizList.innerHTML = "";
+    course.quizzes.forEach(q => createQuizCard(q));
+  }
+  new Sortable(quizList, {
+    animation: 150,
+    handle: '.drag-handle',
+    ghostClass: 'sortable-ghost',   // ← single class name only
+    draggable: '.quiz-item',    // ← only drag these
+    onEnd: () => {
+      const newOrder = [...quizList.children].map(c => parseInt(c.dataset.quizId));
+      course.quizzes.sort((a,b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+      saveCourse();
+    }
+  });
+  
+  function createQuizCard(quiz) {
+    const { id, customName } = quiz;
+    const card = document.createElement("div");
+    card.className = "quiz-item bg-gray-800 p-4 rounded-md shadow flex flex-col gap-2";
+    card.dataset.quizId = id;
+
+    const topRow = document.createElement("div");
+    topRow.className = "flex justify-between items-center";
+
+    const dragDiv = document.createElement("div");
+    dragDiv.className = "text-sm text-gray-400 drag-handle cursor-move";
+    dragDiv.textContent = "↕ Drag";
+
+    const quizLabel = document.createElement("div");
+    quizLabel.className = "text-lg font-semibold";
+    quizLabel.textContent = customName;
+
+    const editBtn = document.createElement("a");
+    editBtn.href = `quizEditor.html?quizId=${id}`;
+    editBtn.textContent = "✏️ Edit";
+    editBtn.className = "text-blue-400 hover:underline text-sm";
+
+    topRow.append(dragDiv, quizLabel, editBtn);
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = customName;
+    nameInput.className = "quiz-name-input bg-gray-700 text-white p-1 rounded placeholder-gray-400";
+
+    // Update customName in course.quizzes on every input
+    nameInput.addEventListener("input", () => {
+      quiz.customName = nameInput.value;
+      quizLabel.textContent = nameInput.value;
+      saveCourse();
+    });
+
+    card.append(topRow, nameInput);
+    quizList.appendChild(card);
+  }
+
+
+
+  // ——— Button Handlers ———
+  document.getElementById("addQuizBtn").addEventListener("click", () => {
+    const newQuiz = { id: nextQuizId++, customName: `Quiz ${nextQuizId-1}` };
+    course.quizzes.push(newQuiz);
+    saveCourse();
+    renderQuizzes();
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', () => { 
+    const title = document.getElementById("courseTitle").value.trim(); 
+    if (!title) { 
+      alert("Please enter a course title."); 
+      return; 
+    } 
+    const quizzes = [...quizList.querySelectorAll(".quiz-item")].map(item => { 
+      const quizId = item.dataset.quizId; 
+      // Read updated quiz name from the input field 
+      const nameInput = item.querySelector('.quiz-name-input'); 
+      const nameValue = nameInput ? nameInput.value : `Quiz ${quizId}`; 
+      const data = localStorage.getItem("quiz_" + quizId); 
+      const quizData = JSON.parse(data || '{}'); 
+      return { id: quizId, name: nameValue, ...quizData }; 
+    }); 
+    const payload = { title, quizzes }; 
+    localStorage.setItem("course", JSON.stringify(payload)); 
+    const status = document.getElementById("status"); 
+    status.textContent = "✅ Course saved locally."; 
+    console.log("Saved course payload:", JSON.stringify(payload, null, 2)); 
+  });
+  
+  
+
+  document.getElementById("goBackBtn").addEventListener("click", () => {
+    localStorage.clear();
+    window.history.back();
+  });
+
+  // ——— Initialize ———
+  loadCourse();
+  renderQuizzes();
+  </script>
+</body>
+</html>

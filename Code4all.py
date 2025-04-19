@@ -21,7 +21,7 @@ with app.app_context():
     existing = Page.query.filter_by(slug="landing").first()
     if not existing:
         page = Page(slug="landing", html=landing_html)
-        db.session.add(page)
+        db.session.add(page)    
         db.session.commit()
     elif existing.html != landing_html:
         # Update the existing page with new content
@@ -39,26 +39,8 @@ def serve_landing_from_db():
 # # Editor page
 @app.route("/editor")
 def editor():
-    return render_template("content-maker1.html")
+    return render_template("content-maker.html")
 
-# # Echo endpoint (plain text)
-@app.route("/echo", methods=["POST"])
-def echo():
-    text = request.get_data(as_text=True)
-    return text, 200, { "Content-Type": "text/plain; charset=UTF-8" }
-
-# # JSON content endpoint
-# @app.route("/api/courses/<int:course_id>/content", methods=["GET", "POST"])
-# def course_content(course_id):
-#     if request.method == "GET":
-#         # stub: return empty or dummy content
-#         return jsonify(content=""), 200
-
-#     # POST: save incoming JSON
-#     data = request.get_json()
-#     content = data.get("content", "")
-#     # TODO: save to DB…
-#     return jsonify(message="Content saved"), 200
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)

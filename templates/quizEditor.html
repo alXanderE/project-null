@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Content Maker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    .sortable-ghost {
+      opacity: 0.5;
+      background-color: #374151; /* Tailwind gray-700 */
+    }
+  </style>
+</head>
+<body class="dark bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
+  <a onclick="window.history.back();" href="javascript:void(0)" title="Go Back" class="fixed top-4 left-4 text-sm bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow transition z-50">
+    <
+  </a>
+  
+  <div class="w-full max-w-2xl pt-[-8rem]">
+    <h1 class="text-3xl font-bold mb-6 text-center">📚 Content Maker</h1>
+
+    
+    <div id="moduleContainer" class="grid gap-4"></div>
+
+    <!-- Control buttons -->
+    <div class="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-700 px-4 py-3 flex flex-wrap justify-center gap-2 z-50">
+      <button onclick="addTextModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Text</button>
+      <button onclick="addQuizModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Quiz</button>
+      <button onclick="addMediaDropModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">📂 Add Media</button>
+      <button id="saveBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md transition w-full sm:w-auto">💾 Save</button>
+    </div>
+
+    <!-- Status area -->
+    <div id="status" class="italic mt-4 text-sm text-gray-300"></div>
+  </div>
+
+  <script>
+    // Global variables and initialization
+    const container = document.getElementById("moduleContainer");
+    const status = document.getElementById("status");
+
+    // Set up Sortable functionality
+    new Sortable(container, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      handle: '.drag-handle',
+      draggable: '.module:not(.title-module)',
+    });
+
+    // Module Creation Functions
+    function addTitleModule() {
+      const div = document.createElement("div");
+      div.className = "module title-module bg-gray-800 p-4 rounded-md shadow";
+
+      const header = document.createElement("div");
+      header.className = "flex justify-between items-center mb-2";
+      const titleLabel = document.createElement("h3");
+      titleLabel.className = "text-lg font-semibold";
+      titleLabel.textContent = "📌 Title Module";
+      header.append(titleLabel);
+      
+      const titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.placeholder = "Enter title here...";
+      titleInput.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+      
+      div.append(header, titleInput);
+      container.insertBefore(div, container.firstChild);
+
+      const separator = document.createElement("div");
+      separator.className = "separator text-center text-xs text-gray-400 mb-4";
+      separator.textContent = "Title module always stays on top";
+      if (container.children.length > 1) {
+        container.insertBefore(separator, container.children[1]);
+      } else {
+        container.appendChild(separator);
+      }
+    }
+
+    function createDeleteButton() {
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "🗑️ Delete";
+      delBtn.className = "text-red-400 text-sm hover:underline mt-2";
+      delBtn.onclick = function () {
+        const parent = delBtn.closest(".module");
+        if (parent && container.contains(parent)) {
+          container.removeChild(parent);
+        }
+      };
+      return delBtn;
+    }
+
+    function addTextModule() {
+      const div = document.createElement("div");
+      div.className = "module bg-gray-800 p-4 rounded-md shadow";
+
+      const header = document.createElement("div");
+      header.className = "flex justify-between items-center mb-2";
+
+      const drag = document.createElement("div");
+      drag.className = "drag-handle cursor-move text-sm text-gray-400";
+      drag.textContent = "↕ Drag";
+
+      const title = document.createElement("h3");
+      title.className = "text-lg font-semibold";
+      title.textContent = "📝 Text Module";
+
+      header.append(title, drag);
+
+      const textarea = document.createElement("textarea");
+      textarea.placeholder = "Write your content here...";
+      textarea.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+
+      div.append(header, textarea, createDeleteButton());
+      container.appendChild(div);
+    }
+
+    function addQuizModule() {
+      const div = document.createElement("div");
+      div.className = "module bg-gray-800 p-4 rounded-md shadow";
+
+      const header = document.createElement("div");
+      header.className = "flex justify-between items-center mb-2";
+
+      const drag = document.createElement("div");
+      drag.className = "drag-handle cursor-move text-sm text-gray-400";
+      drag.textContent = "↕ Drag";
+
+      const title = document.createElement("h3");
+      title.className = "text-lg font-semibold";
+      title.textContent = "❓ Quiz Module";
+
+      header.append(title, drag);
+
+      const fields = ["Question?", "Option 1", "Option 2", "Option 3", "Correct Answer"].map(ph => {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = ph;
+        input.className = "w-full mb-2 p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+        return input;
+      });
+
+      div.append(header, ...fields, createDeleteButton());
+      container.appendChild(div);
+    }
+
+    function addMediaDropModule() {
+      const div = document.createElement("div");
+      div.className = "module bg-gray-800 p-4 rounded-md shadow";
+      
+      const header = document.createElement("div");
+      header.className = "flex justify-between items-center mb-2";
+      
+      const drag = document.createElement("div");
+      drag.className = "drag-handle cursor-move text-sm text-gray-400";
+      drag.textContent = "↕ Drag";
+      
+      const title = document.createElement("h3");
+      title.className = "text-lg font-semibold";
+      title.textContent = "📂 Media Upload Module";
+      
+      header.append(title, drag);
+      
+      const dropzone = document.createElement("div");
+      dropzone.className = "w-full p-6 border-2 border-dashed border-gray-500 text-center rounded cursor-pointer hover:border-blue-400 transition";
+      dropzone.textContent = "Drag & drop an image or video here, or click to select";
+      
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*,video/*";
+      input.className = "hidden";
+      
+      const preview = document.createElement("div");
+      preview.className = "mt-4";
+      
+      dropzone.addEventListener("click", () => input.click());
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("border-blue-400", "bg-gray-700");
+      });
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("border-blue-400", "bg-gray-700");
+      });
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("border-blue-400", "bg-gray-700");
+        if (e.dataTransfer.files.length > 0) {
+          input.files = e.dataTransfer.files;
+          showPreview(input.files[0]);
+        }
+      });
+      input.addEventListener("change", () => {
+        if (input.files[0]) {
+          showPreview(input.files[0]);
+        }
+      });
+      
+      function showPreview(file) {
+        dropzone.style.display = "none";
+        preview.innerHTML = "";
+        const url = URL.createObjectURL(file);
+      
+        if (file.type.startsWith("image/")) {
+          preview.innerHTML = `<img src="${url}" class="w-full max-h-64 object-contain rounded" />`;
+        } else if (file.type.startsWith("video/")) {
+          preview.innerHTML = `
+              <video controls class="w-full max-h-64 rounded">
+                <source src="${url}" type="${file.type}">
+                Your browser does not support the video tag.
+              </video>
+            `;
+        }
+      
+        preview.dataset.fileName = file.name;
+      }
+      
+      div.append(header, dropzone, input, preview, createDeleteButton());
+      container.appendChild(div);
+    }
+
+    function loadModulesData(modules) {
+      container.innerHTML = "";
+      modules.forEach(mod => {
+        let element;
+        if (mod.type === "title") {
+          element = document.createElement("div");
+          element.className = "module title-module bg-gray-800 p-4 rounded-md shadow";
+          const header = document.createElement("div");
+          header.className = "flex justify-between items-center mb-2";
+          const titleLabel = document.createElement("h3");
+          titleLabel.className = "text-lg font-semibold";
+          titleLabel.textContent = "📌 Title Module";
+          header.append(titleLabel);
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Enter title here...";
+          input.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          input.value = mod.content;
+          element.append(header, input);
+        } else if (mod.type === "text") {
+          element = document.createElement("div");
+          element.className = "module bg-gray-800 p-4 rounded-md shadow";
+          const header = document.createElement("div");
+          header.className = "flex justify-between items-center mb-2";
+          const drag = document.createElement("div");
+          drag.className = "drag-handle cursor-move text-sm text-gray-400";
+          drag.textContent = "↕ Drag";
+          const title = document.createElement("h3");
+          title.className = "text-lg font-semibold";
+          title.textContent = "📝 Text Module";
+          header.append(title, drag);
+          const textarea = document.createElement("textarea");
+          textarea.placeholder = "Write your content here...";
+          textarea.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          textarea.value = mod.content;
+          element.append(header, textarea, createDeleteButton());
+        } else if (mod.type === "quiz") {
+          element = document.createElement("div");
+          element.className = "module bg-gray-800 p-4 rounded-md shadow";
+          const header = document.createElement("div");
+          header.className = "flex justify-between items-center mb-2";
+          const drag = document.createElement("div");
+          drag.className = "drag-handle cursor-move text-sm text-gray-400";
+          drag.textContent = "↕ Drag";
+          const title = document.createElement("h3");
+          title.className = "text-lg font-semibold";
+          title.textContent = "❓ Quiz Module";
+          header.append(title, drag);
+          const inputQuestion = document.createElement("input");
+          inputQuestion.type = "text";
+          inputQuestion.placeholder = "Question?";
+          inputQuestion.className = "w-full mb-2 p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          inputQuestion.value = mod.question;
+          const inputOption1 = document.createElement("input");
+          inputOption1.type = "text";
+          inputOption1.placeholder = "Option 1";
+          inputOption1.className = "w-full mb-2 p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          inputOption1.value = mod.options[0];
+          const inputOption2 = document.createElement("input");
+          inputOption2.type = "text";
+          inputOption2.placeholder = "Option 2";
+          inputOption2.className = "w-full mb-2 p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          inputOption2.value = mod.options[1];
+          const inputOption3 = document.createElement("input");
+          inputOption3.type = "text";
+          inputOption3.placeholder = "Option 3";
+          inputOption3.className = "w-full mb-2 p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          inputOption3.value = mod.options[2];
+          const inputAnswer = document.createElement("input");
+          inputAnswer.type = "text";
+          inputAnswer.placeholder = "Correct Answer";
+          inputAnswer.className = "w-full mb-2 p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+          inputAnswer.value = mod.answer;
+          element.append(header, inputQuestion, inputOption1, inputOption2, inputOption3, inputAnswer, createDeleteButton());
+        } else if (mod.type === "media") {
+          element = document.createElement("div");
+          element.className = "module bg-gray-800 p-4 rounded-md shadow";
+          const header = document.createElement("div");
+          header.className = "flex justify-between items-center mb-2";
+          const drag = document.createElement("div");
+          drag.className = "drag-handle cursor-move text-sm text-gray-400";
+          drag.textContent = "↕ Drag";
+          const title = document.createElement("h3");
+          title.className = "text-lg font-semibold";
+          title.textContent = "📂 Media Upload Module";
+          header.append(title, drag);
+          const fileLabel = document.createElement("div");
+          fileLabel.textContent = `Saved file: ${mod.fileName}`;
+          element.append(header, fileLabel, createDeleteButton());
+        }
+        container.appendChild(element);
+      });
+    }
+
+    // Event Listeners and Save Functionality
+    const params = new URLSearchParams(window.location.search);
+    const quizId = params.get('quizId'); // read quizId from URL
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const modules = [];
+      container.querySelectorAll('.module').forEach(mod => {
+        if (mod.classList.contains("title-module")) {
+          const input = mod.querySelector("input");
+          modules.push({
+            type: "title",
+            content: input ? input.value : ""
+          });
+        } else if (mod.querySelector("textarea")) {
+          modules.push({ type: "text", content: mod.querySelector("textarea").value });
+        } else if (mod.querySelector("input[type='text']") && mod.querySelectorAll("input").length === 5) {
+          const inputs = mod.querySelectorAll("input");
+          modules.push({
+            type: "quiz",
+            question: inputs[0].value,
+            options: [inputs[1].value, inputs[2].value, inputs[3].value],
+            answer: inputs[4].value
+          });
+        } else if (mod.querySelector("input[type='file']")) {
+          const fileInput = mod.querySelector("input[type='file']");
+          const file = fileInput.files[0];
+          const preview = mod.querySelector(".mt-4");
+          if (file && preview) {
+            modules.push({
+              type: "media",
+              fileName: file.name,
+              mediaType: file.type.startsWith("image/") ? "image" : "video"
+            });
+          }
+        }
+      });
+      // Save modules data using quizId key if available
+      if (quizId) {
+        localStorage.setItem('quiz_' + quizId, JSON.stringify(modules));
+        status.textContent = '✅ Saved locally.';
+      } else {
+        localStorage.setItem('quizModules', JSON.stringify(modules));
+        status.textContent = '✅ Saved locally.';
+      }
+    });
+
+    // Initialization: load modules if quizId exists, otherwise add title module
+    if (quizId) {
+      const loadedData = localStorage.getItem('quiz_' + quizId);
+      if (loadedData) {
+        const modules = JSON.parse(loadedData);
+        loadModulesData(modules);
+        status.textContent = 'Loaded modules from localStorage.';
+      } else {
+        status.textContent = 'No saved modules found.';
+        addTitleModule();
+      }
+    } else {
+      addTitleModule();
+    }
+  </script>
+</body>
+</html>
