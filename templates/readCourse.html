@@ -77,7 +77,7 @@
         const name = lectureObj.name || lectureObj.customName || `Lecture ${lectureObj.id}`;
         header.innerHTML = `
           <h2 class="text-xl font-semibold">${name}</h2>
-          <a href="lectureViewer.html?lectureId=${lectureObj.id}"
+          <a href="readLecture.html?lectureId=${lectureObj.id}"
              class="text-blue-400 hover:underline text-sm">▶ View Lecture</a>
         `;
         card.append(header);
