@@ -5,15 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark">
-    <style>
-        .dark-mode, .dark-mode * {
-            background-color: #212121 !important;
-            color: #ffffff !important;
-        }
-    </style>
-    <script>
-        document.documentElement.classList.add('dark-mode');
-    </script>
+  
   <title>Share the Course</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -76,7 +68,7 @@
   
       data.forEach(course => {
         const card = document.createElement('div');
-        card.className = "min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex-shrink-0 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition";
+        card.className = "min-w-[200px] dark bg-gray-800 rounded-lg shadow p-4 flex-shrink-0 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition";
         card.innerHTML = `
           <h3 class="text-lg font-bold">${course.title}</h3>
         `;
