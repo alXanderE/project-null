@@ -18,14 +18,11 @@
   >🔄 Try Again</button>
 
   <div class="max-w-2xl mx-auto space-y-6">
-    <h1 id="quizTitle" class="text-3xl font-bold text-center">📖 Quiz</h1>
-    <div id="quizContent" class="space-y-6"></div>
-  </div>
-
-  <div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold mb-4 text-center">📖 Saved Quiz</h1>
+    <h1 class="text-3xl font-bold mb-4 text-center" id="customQuizName">📖 Saved Quiz</h1>
     <div id="courseContent" class="space-y-6"></div>
   </div>
+
+  
 
   <script>
     // 1) Load course from localStorage or fallback to example
@@ -35,7 +32,7 @@
         {
           "0": {"type":"title","content":"sssss"},
           "1": {"type":"text","content":"asdfsf"},
-          "2": {"type":"quiz","question":"sdf","options":["dd","ff","w"],"answer":"e"},
+          "2": {"type":"quiz","question":"sdf","options":["dd","ff","w"],"answer":"dd"},
           "id":"1001","name":"dfdf"
         },
         {
@@ -58,11 +55,14 @@
     const quizId = params.get('quizId');
 
     // 3) Find the quiz object
-    const quizObj = course.quizzes.find(q=>String(q.id)===quizId);
+    const quizObj = course.quizzes.find(q => String(q.id) === quizId);
     if (!quizObj) {
       document.getElementById('courseContent').textContent = `❌ Quiz ${quizId} not found.`;
       throw new Error(`Quiz ${quizId} not found`);
     }
+    
+    // Set custom quiz name from the updated customName property
+    document.getElementById('customQuizName').textContent = quizObj.name || "Quiz";
 
     // 4) Build modules array from numeric keys
     const modules = Object.keys(quizObj)
