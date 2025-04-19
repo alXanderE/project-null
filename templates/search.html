@@ -60,7 +60,6 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ q: query }),
-          max: maxResults,
         });
 
         const data = await res.json();

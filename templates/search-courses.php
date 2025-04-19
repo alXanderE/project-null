@@ -21,10 +21,10 @@ if ($q === '') {
 
 // 3) Step 1: exact matches
 $exactStmt = mysqli_prepare($conn,
-    "SELECT id, title, description
+    "SELECT id, title
        FROM courses
-      WHERE title = ? OR description = ?
-      LIMIT ?"
+      WHERE title = ?
+      LIMIT $max"
 );
 mysqli_stmt_bind_param($exactStmt, "ssi", $q, $q, $max);
 mysqli_stmt_execute($exactStmt);
@@ -33,26 +33,26 @@ mysqli_stmt_bind_result($exactStmt, $id, $title, $desc);
 $courses = [];
 $ids      = [];
 while (mysqli_stmt_fetch($exactStmt)) {
-    $courses[] = ['id'=>$id,'title'=>$title,'description'=>$desc];
+    $courses[] = ['id'=>$id,'title'=>$title];
     $ids[]      = $id;
 }
 mysqli_stmt_close($exactStmt);
 
-// 4) Step 2: fill with next courses (no LIKE) up to $max
+// 4) Step 2: fill with next courses up to $max
 $remaining = $max - count($courses);
 if ($remaining > 0) {
     // Build IN clause of already‑seen IDs (if any)
     if (count($ids) > 0) {
         $in = implode(',', array_map('intval', $ids));
         $sql = "
-          SELECT id, title, description
+          SELECT id, title
             FROM courses
            WHERE id NOT IN ($in)
            LIMIT $remaining
         ";
     } else {
         $sql = "
-          SELECT id, title, description
+          SELECT id, title
             FROM courses
            LIMIT $remaining
         ";
@@ -64,7 +64,6 @@ if ($remaining > 0) {
             $courses[] = [
                 'id'          => (int)$row['id'],
                 'title'       => $row['title'],
-                'description' => $row['description']
             ];
         }
         mysqli_free_result($res);
