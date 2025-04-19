@@ -27,7 +27,7 @@ $stmt = mysqli_prepare($conn,
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
 
-// bind into $title and $lectures_json
+// **Bind into two proper PHP variables** (no stray ampersand)
 mysqli_stmt_bind_result($stmt, $title, $lectures_json);
 
 if (! mysqli_stmt_fetch($stmt)) {
@@ -41,9 +41,8 @@ if (! mysqli_stmt_fetch($stmt)) {
 mysqli_stmt_close($stmt);
 mysqli_close($conn);
 
-// 4) Decode and return
+// 4) Decode and return a well‑formed JSON
 $lectures = json_decode($lectures_json, true);
-
 echo json_encode([
     'id'       => $id,
     'title'    => $title,
