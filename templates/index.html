@@ -63,7 +63,7 @@
 
   <script>
     const searchBtn = document.getElementById('searchBtn');
-
+    const createBtn = document.getElementById('createBtn');
     searchBtn.addEventListener('click', () => {
       const course = document.querySelector('input[name="simple_text"]').value.trim();
       if (!course) {
@@ -71,6 +71,10 @@
         return;
       }
       window.location.href = `/editor?course=${encodeURIComponent(course)}`;
+    });
+
+    createBtn.addEventListener('click', () => {
+      window.location.href = '/editor';
     });
   </script>
 </body>

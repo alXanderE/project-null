@@ -1,26 +1,40 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
 
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost/phpmyadmin"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:GavinLeeDlrkdgus%4012@localhost/mydb"
 db = SQLAlchemy(app)
 
-class Ping(db.Model):
+# Python SQLAlchemy example
+class Page(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    message = db.Column(db.String(64))
+    slug = db.Column(db.String(255), unique=True)
+    html = db.Column(db.Text)
 
-# Write test row to DB immediately
+    # Add your landing page
 with app.app_context():
     db.create_all()
-    test_entry = Ping(message="✅ Connected successfully")
-    db.session.add(test_entry)
+    with open("templates/index.html", encoding="utf-8") as f:
+            landing_html = f.read()
+    # Check if "landing" page already exists
+    existing = Page.query.filter_by(slug="landing").first()
+    if not existing:
+        page = Page(slug="landing", html=landing_html)
+        db.session.add(page)
+        db.session.commit()
+    elif existing.html != landing_html:
+        # Update the existing page with new content
+        existing.html = landing_html
+        print("Updating existing page")
     db.session.commit()
-    print("✅ Test row written to DB.")
     
-# Landing page
-@app.route("/")
-def landing():
-    return render_template("index.html")
+@app.route('/')
+def serve_landing_from_db():
+    page = Page.query.filter_by(slug="landing").first()
+    if page:
+        return Response(page.html, mimetype='text/html')
+    return "Page not found", 404
 
 # # Editor page
 @app.route("/editor")
