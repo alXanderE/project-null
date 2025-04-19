@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Content Maker (Server Stub)</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    textarea { width: 100%; height: 200px; padding: 0.5rem; font-size: 1rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; margin-top: 0.5rem; }
+    #status { margin-top: 1rem; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Content Maker (Server Stub)</h1>
+
+  <textarea id="contentBox" placeholder="Enter course content…"></textarea>
+  <br/>
+  <button id="saveBtn">Save to Server</button>
+
+  <div id="status"></div>
+
+  <script>
+    const textarea = document.getElementById('contentBox');
+    const btn      = document.getElementById('saveBtn');
+    const status   = document.getElementById('status');
+
+    btn.addEventListener('click', async () => {
+      const content = textarea.value.trim();
+      if (!content) {
+        status.textContent = 'Please enter some content first.';
+        return;
+      }
+
+      status.textContent = 'Sending to server…';
+
+      try {
+        // POST plain text to /echo
+        const res = await fetch('/echo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
+          body: content
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        // The server echoes back exactly what we sent
+        const echoed = await res.text();
+
+        // Replace textarea with the echoed content
+        textarea.value = echoed;
+        status.textContent = '✅ Server echoed your content!';
+      } catch (err) {
+        console.error(err);
+        status.textContent = '❌ Error talking to server.';
+      }
+    });
+  </script>
+</body>
+</html>
