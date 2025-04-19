@@ -14,27 +14,27 @@ $body = file_get_contents('php://input');
 $data = json_decode($body, true);
 
 // 3) Validate required fields
-if (!isset($data['title']) || !isset($data['quizzes'])) {
+if (!isset($data['title']) || !isset($data['lectures'])) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing title or quizzes']);
+    echo json_encode(['error' => 'Missing title or lectures']);
     exit;
 }
 
 $title       = $data['title'];
-$quizzes_json = json_encode($data['quizzes']); // turn quizzes array back to JSON string
+$lectures_json = json_encode($data['lectures']); // turn lectures array back to JSON string
 
 // 4) Insert into `courses` table
 //    Make sure you have:
 //      CREATE TABLE courses (
 //        id INT AUTO_INCREMENT PRIMARY KEY,
 //        title VARCHAR(255),
-//        quizzes_json LONGTEXT
+//        quizzes_json LONGTEXT -> changed to lectures_json
 //      );
 $stmt = mysqli_prepare(
     $conn,
-    "INSERT INTO courses (title, quizzes_json) VALUES (?, ?)"
+    "INSERT INTO courses (title, lectures_json) VALUES (?, ?)"
 );
-mysqli_stmt_bind_param($stmt, "ss", $title, $quizzes_json);
+mysqli_stmt_bind_param($stmt, "ss", $title, $lectures_json);
 $success = mysqli_stmt_execute($stmt);
 
 if (!$success) {

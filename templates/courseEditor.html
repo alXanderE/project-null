@@ -26,10 +26,10 @@
       class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white placeholder-gray-400"
     />
 
-    <div id="quizList" class="flex flex-col gap-4"></div>
+    <div id="lectureList" class="flex flex-col gap-4"></div>
 
     <div class="flex gap-2">
-      <button id="addQuizBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">➕ Add Lecture</button>
+      <button id="addLectureBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">➕ Add Lecture</button>
       <button id="saveBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md">💾 Save Course</button>
     </div>
 
@@ -39,13 +39,13 @@
   <script>
   // ——— Course State Management ———
   let course = null;
-  let nextQuizId = 1000;
+  let nextLectureId = 1000;
 
   function loadCourse() {
-    course = JSON.parse(localStorage.getItem("course") || '{"title":"","quizzes":[]}');
-    // fix nextQuizId
-    course.quizzes.forEach(q => {
-      if (q.id >= nextQuizId) nextQuizId = q.id + 1;
+    course = JSON.parse(localStorage.getItem("course") || '{"title":"","lectures":[]}');
+    // fix nextLectureId
+    course.lectures.forEach(q => {
+      if (q.id >= nextLectureId) nextLectureId = q.id + 1;
     });
     document.getElementById("courseTitle").value = course.title;
   }
@@ -55,28 +55,28 @@
   }
 
   // ——— Rendering & Interactions ———
-  const quizList = document.getElementById("quizList");
-  function renderQuizzes() {
-    quizList.innerHTML = "";
-    course.quizzes.forEach(q => createQuizCard(q));
+  const lectureList = document.getElementById("lectureList");
+  function renderLectures() {
+    lectureList.innerHTML = "";
+    course.lectures.forEach(q => createLectureCard(q));
   }
-  new Sortable(quizList, {
+  new Sortable(lectureList, {
     animation: 150,
     handle: '.drag-handle',
     ghostClass: 'sortable-ghost',   // ← single class name only
-    draggable: '.quiz-item',    // ← only drag these
+    draggable: '.lecture-item',    // ← only drag these
     onEnd: () => {
-      const newOrder = [...quizList.children].map(c => parseInt(c.dataset.quizId));
-      course.quizzes.sort((a,b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+      const newOrder = [...lectureList.children].map(c => parseInt(c.dataset.lectureId));
+      course.lectures.sort((a,b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
       saveCourse();
     }
   });
   
-  function createQuizCard(quiz) {
-    const { id, customName } = quiz;
+  function createLectureCard(lecture) {
+    const { id, customName } = lecture;
     const card = document.createElement("div");
-    card.className = "quiz-item bg-gray-800 p-4 rounded-md shadow flex flex-col gap-2";
-    card.dataset.quizId = id;
+    card.className = "lecture-item bg-gray-800 p-4 rounded-md shadow flex flex-col gap-2";
+    card.dataset.lectureId = id;
   
     // Top row with drag, label, edit and delete
     const topRow = document.createElement("div");
@@ -86,12 +86,12 @@
     dragDiv.className = "text-sm text-gray-400 drag-handle cursor-move";
     dragDiv.textContent = "↕ Drag";
   
-    const quizLabel = document.createElement("div");
-    quizLabel.className = "text-lg font-semibold";
-    quizLabel.textContent = customName;
+    const lectureLabel = document.createElement("div");
+    lectureLabel.className = "text-lg font-semibold";
+    lectureLabel.textContent = customName;
   
     const editBtn = document.createElement("a");
-    editBtn.href = `quizEditor.html?quizId=${id}`;
+    editBtn.href = `lectureEditor.html?lectureId=${id}`;
     editBtn.textContent = "✏️ Edit";
     editBtn.className = "text-blue-400 hover:underline text-sm";
   
@@ -100,38 +100,38 @@
     delBtn.textContent = "🗑️";
     delBtn.className = "text-red-400 hover:underline text-sm";
     delBtn.onclick = () => {
-      // remove this quiz from the array
-      course.quizzes = course.quizzes.filter(q => q.id !== id);
+      // remove this lecture from the array
+      course.lectures = course.lectures.filter(q => q.id !== id);
       saveCourse();
-      renderQuizzes();
+      renderLectures();
     };
   
-    topRow.append(dragDiv, quizLabel, editBtn, delBtn);
+    topRow.append(dragDiv, lectureLabel, editBtn, delBtn);
   
     // Name input
     const nameInput = document.createElement("input");
     nameInput.type = "text";
     nameInput.value = customName;
-    nameInput.className = "quiz-name-input bg-gray-700 text-white p-1 rounded placeholder-gray-400";
+    nameInput.className = "lecture-name-input bg-gray-700 text-white p-1 rounded placeholder-gray-400";
     nameInput.addEventListener("input", () => {
-      quiz.customName = nameInput.value;
-      quizLabel.textContent = nameInput.value;
+      lecture.customName = nameInput.value;
+      lectureLabel.textContent = nameInput.value;
       saveCourse();
     });
   
     card.append(topRow, nameInput);
-    quizList.appendChild(card);
+    lectureList.appendChild(card);
   }
   
 
 
 
   // ——— Button Handlers ———
-  document.getElementById("addQuizBtn").addEventListener("click", () => {
-    const newQuiz = { id: nextQuizId++, customName: `Lecture ${nextQuizId-1}` };
-    course.quizzes.push(newQuiz);
+  document.getElementById("addLectureBtn").addEventListener("click", () => {
+    const newLecture = { id: nextLectureId++, customName: `Lecture ${nextLectureId-1}` };
+    course.lectures.push(newLecture);
     saveCourse();
-    renderQuizzes();
+    renderLectures();
   });
 
   document.getElementById('saveBtn').addEventListener('click', () => { 
@@ -140,22 +140,22 @@
       alert("Please enter a course title."); 
       return; 
     } 
-    const quizzes = [...quizList.querySelectorAll(".quiz-item")].map(item => { 
-      const quizId = item.dataset.quizId; 
-      // Read updated quiz name from the input field 
-      const nameInput = item.querySelector('.quiz-name-input'); 
-      const nameValue = nameInput ? nameInput.value : `Quiz ${quizId}`; 
-      const data = localStorage.getItem("quiz_" + quizId); 
-      const quizData = JSON.parse(data || '{}'); 
-      return { id: quizId, name: nameValue, ...quizData }; 
+    const lectures = [...lectureList.querySelectorAll(".lecture-item")].map(item => { 
+      const lectureId = item.dataset.lectureId; 
+      // Read updated lecture name from the input field 
+      const nameInput = item.querySelector('.lecture-name-input'); 
+      const nameValue = nameInput ? nameInput.value : `Lecture ${lectureId}`; 
+      const data = localStorage.getItem("lecture_" + lectureId); 
+      const lectureData = JSON.parse(data || '{}'); 
+      return { id: lectureId, name: nameValue, ...lectureData }; 
     }); 
-    const payload = { title, quizzes }; 
+    const payload = { title, lectures }; 
     localStorage.setItem("course", JSON.stringify(payload)); 
     const status = document.getElementById("status"); 
-    fetch('api/save-course.php', {
+    fetch('save-course.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, quizzes })
+        body: JSON.stringify({ title, lectures })
       })
       .then(res => res.json())
       .then(json => {
@@ -178,7 +178,7 @@
 
   // ——— Initialize ———
   loadCourse();
-  renderQuizzes();
+  renderLectures();
   </script>
 </body>
 </html>

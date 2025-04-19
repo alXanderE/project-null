@@ -25,7 +25,7 @@
     <!-- Control buttons -->
     <div class="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-700 px-4 py-3 flex flex-wrap justify-center gap-2 z-50">
       <button onclick="addTextModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Text</button>
-      <button onclick="addQuizModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Quiz</button>
+      <button onclick="addLectureModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">➕ Add Lecture</button>
       <button onclick="addMediaDropModule()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition w-full sm:w-auto">📂 Add Media</button>
       <button id="saveBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md transition w-full sm:w-auto">💾 Save</button>
     </div>
@@ -116,7 +116,7 @@
       container.appendChild(div);
     }
 
-    function addQuizModule() {
+    function addLectureModule() {
       const div = document.createElement("div");
       div.className = "module bg-gray-800 p-4 rounded-md shadow";
 
@@ -129,7 +129,7 @@
 
       const title = document.createElement("h3");
       title.className = "text-lg font-semibold";
-      title.textContent = "❓ Quiz Module";
+      title.textContent = "❓ Lecture Module";
 
       header.append(title, drag);
 
@@ -255,7 +255,7 @@
           textarea.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
           textarea.value = mod.content;
           element.append(header, textarea, createDeleteButton());
-        } else if (mod.type === "quiz") {
+        } else if (mod.type === "lecture") {
           element = document.createElement("div");
           element.className = "module bg-gray-800 p-4 rounded-md shadow";
           const header = document.createElement("div");
@@ -265,7 +265,7 @@
           drag.textContent = "↕ Drag";
           const title = document.createElement("h3");
           title.className = "text-lg font-semibold";
-          title.textContent = "❓ Quiz Module";
+          title.textContent = "❓ Lecture Module";
           header.append(title, drag);
           const inputQuestion = document.createElement("input");
           inputQuestion.type = "text";
@@ -315,7 +315,7 @@
 
     // Event Listeners and Save Functionality
     const params = new URLSearchParams(window.location.search);
-    const quizId = params.get('quizId'); // read quizId from URL
+    const lectureId = params.get('lectureId'); // read lectureId from URL
 
     document.getElementById('saveBtn').addEventListener('click', () => {
       saveModulesData();
@@ -335,7 +335,7 @@
         } else if (mod.querySelector("input[type='text']") && mod.querySelectorAll("input").length === 5) {
           const inputs = mod.querySelectorAll("input");
           modules.push({
-            type: "quiz",
+            type: "lecture",
             question: inputs[0].value,
             options: [inputs[1].value, inputs[2].value, inputs[3].value],
             answer: inputs[4].value
@@ -353,18 +353,18 @@
           }
         }
       });
-      // Save modules data using quizId key if available
-      if (quizId) {
-        localStorage.setItem('quiz_' + quizId, JSON.stringify(modules));
+      // Save modules data using lectureId key if available
+      if (lectureId) {
+        localStorage.setItem('lecture_' + lectureId, JSON.stringify(modules));
         status.textContent = '✅ Saved locally.';
       } else {
-        localStorage.setItem('quizModules', JSON.stringify(modules));
+        localStorage.setItem('lectureModules', JSON.stringify(modules));
         status.textContent = '✅ Saved locally.';
       }
     }
-    // Initialization: load modules if quizId exists, otherwise add title module
-    if (quizId) {
-      const loadedData = localStorage.getItem('quiz_' + quizId);
+    // Initialization: load modules if lectureId exists, otherwise add title module
+    if (lectureId) {
+      const loadedData = localStorage.getItem('lecture_' + lectureId);
       if (loadedData) {
         const modules = JSON.parse(loadedData);
         loadModulesData(modules);
