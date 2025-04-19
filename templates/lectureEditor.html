@@ -108,8 +108,17 @@
 
       const textarea = document.createElement("textarea");
       textarea.placeholder = "Write your content here...";
-      textarea.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400";
+      textarea.className = "w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400 overflow-hidden resize-none";
+      textarea.style.minHeight = "4rem"; // ~64px
 
+     // Auto-resize on input
+     textarea.addEventListener("input", () => {
+     textarea.style.height = "auto";
+     textarea.style.height = textarea.scrollHeight + "px";
+    });
+
+  // Trigger resize initially
+  textarea.dispatchEvent(new Event("input"));
       div.append(header, textarea, createDeleteButton());
       container.appendChild(div);
     }
