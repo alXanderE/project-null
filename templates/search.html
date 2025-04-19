@@ -35,7 +35,7 @@
     const form = document.getElementById('searchForm');
     const results = document.getElementById('results');
     const status = document.getElementById('status');
-
+    const maxResults = 20;
     // Prefill input from URL
     if (initialQuery) {
       input.value = initialQuery;
@@ -59,7 +59,8 @@
         const res = await fetch('search-courses.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ q: query })
+          body: JSON.stringify({ q: query }),
+          max: maxResults,
         });
 
         const data = await res.json();

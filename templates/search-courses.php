@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-// 1) Connect to MySQL
+// 1) Connect
 $conn = mysqli_connect("localhost", "root", "", "mydatabase");
 if (!$conn) {
     http_response_code(500);
@@ -9,47 +9,67 @@ if (!$conn) {
     exit;
 }
 
-// 2) Read incoming JSON body
+// 2) Read JSON body
 $input = json_decode(file_get_contents('php://input'), true);
-$q = trim($input['q'] ?? '');
+$q     = trim($input['q'] ?? '');
+$max   = 20;
 
 if ($q === '') {
-    // No query → return empty array
     echo json_encode([]);
     exit;
 }
 
-// 3) Prepare and run a LIKE query
-$sql  = "SELECT id, title, description
-         FROM courses
-         WHERE title LIKE ? OR description LIKE ?
-         LIMIT 20";
-$stmt = mysqli_prepare($conn, $sql);
-$like = "%{$q}%";
-mysqli_stmt_bind_param($stmt, "ss", $like, $like);
-$ok = mysqli_stmt_execute($stmt);
+// 3) Step 1: exact matches
+$exactStmt = mysqli_prepare($conn,
+    "SELECT id, title, description
+       FROM courses
+      WHERE title = ? OR description = ?
+      LIMIT ?"
+);
+mysqli_stmt_bind_param($exactStmt, "ssi", $q, $q, $max);
+mysqli_stmt_execute($exactStmt);
+mysqli_stmt_bind_result($exactStmt, $id, $title, $desc);
 
-if (! $ok) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Query failed: ' . mysqli_error($conn)]);
-    mysqli_stmt_close($stmt);
-    mysqli_close($conn);
-    exit;
-}
-
-mysqli_stmt_bind_result($stmt, $id, $title, $description);
-
-// 4) Collect results
 $courses = [];
-while (mysqli_stmt_fetch($stmt)) {
-    $courses[] = [
-        'id'          => $id,
-        'title'       => $title,
-        'description' => $description
-    ];
+$ids      = [];
+while (mysqli_stmt_fetch($exactStmt)) {
+    $courses[] = ['id'=>$id,'title'=>$title,'description'=>$desc];
+    $ids[]      = $id;
+}
+mysqli_stmt_close($exactStmt);
+
+// 4) Step 2: fill with next courses (no LIKE) up to $max
+$remaining = $max - count($courses);
+if ($remaining > 0) {
+    // Build IN clause of already‑seen IDs (if any)
+    if (count($ids) > 0) {
+        $in = implode(',', array_map('intval', $ids));
+        $sql = "
+          SELECT id, title, description
+            FROM courses
+           WHERE id NOT IN ($in)
+           LIMIT $remaining
+        ";
+    } else {
+        $sql = "
+          SELECT id, title, description
+            FROM courses
+           LIMIT $remaining
+        ";
+    }
+
+    $res = mysqli_query($conn, $sql);
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $courses[] = [
+                'id'          => (int)$row['id'],
+                'title'       => $row['title'],
+                'description' => $row['description']
+            ];
+        }
+        mysqli_free_result($res);
+    }
 }
 
-// 5) Cleanup and output
-mysqli_stmt_close($stmt);
 mysqli_close($conn);
 echo json_encode($courses);
