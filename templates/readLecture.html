@@ -8,128 +8,124 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-6">
   <!-- Back to Course -->
-  <button id="goBackBtn" class="fixed top-4 left-4 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded shadow z-50">
+  <button id="goBackBtn"
+          class="fixed top-4 left-4 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded shadow z-50">
     ⬅ Back to Course
   </button>
   <!-- Try Again -->
-  <button
-    id="tryAgainBtn"
-    class="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50"
-  >🔄 Try Again</button>
+  <button id="tryAgainBtn"
+          class="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">
+    🔄 Try Again
+  </button>
 
   <div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold mb-4 text-center" id="customLectureName">📖 Saved Lecture</h1>
+    <h1 id="customLectureName" class="text-3xl font-bold mb-4 text-center">📖 Lecture</h1>
     <div id="lectureContent" class="space-y-6"></div>
   </div>
 
   <script>
-    // 1) Load course from localStorage or fallback to example
-    const exampleCourse = {
-      "title": "sdf",
-      "lectures": [
-        {
-          "0": {"type":"title","content":"sssss"},
-          "1": {"type":"text","content":"asdfsf"},
-          "2": {"type":"quiz","question":"sdf","options":["dd","ff","w"],"answer":"dd"},
-          "id":"1001","name":"dfdf"
-        },
-        {
-          "0": {"type":"title","content":"sdfsdfsf"},
-          "1": {"type":"quiz","question":"dd","options":["sfsf","ee","sfsf"],"answer":"ff"},
-          "2": {"type":"quiz","question":"ad","options":["ee","aaaa","ff"],"answer":"ddd"},
-          "id":"10011","name":"Lecture 10011fdf"
-        },
-        {
-          "0": {"type":"title","content":"fff"},
-          "1": {"type":"text","content":"eeeee"},
-          "id":"10012","name":"Lecture 10012"
-        }
-      ]
-    };
-    const course = JSON.parse(localStorage.getItem('course') || JSON.stringify(exampleCourse));
-
-    // 2) Grab lectureId from URL
-    const params = new URLSearchParams(window.location.search);
-    const lectureId = params.get('lectureId');
-
-    // 3) Find the lecture object
-    const lectureObj = course.lectures.find(l => String(l.id) === lectureId);
-    if (!lectureObj) {
-      document.getElementById('lectureContent').textContent = `❌ Lecture ${lectureId} not found.`;
-      throw new Error(`Lecture ${lectureId} not found`);
-    }
-    
-    // Set custom lecture name from the updated name property
-    document.getElementById('customLectureName').textContent = lectureObj.name || "Lecture";
-
-    // 4) Build modules array from numeric keys
-    const modules = Object.keys(lectureObj)
-      .filter(k => /^\d+$/.test(k))
-      .sort((a, b) => a - b)
-      .map(k => lectureObj[k]);
-
-    // 5) Render modules
-    const content = document.getElementById('lectureContent');
-    modules.forEach((mod, index) => {
-      const div = document.createElement("div");
-      div.className = "bg-gray-800 p-4 rounded-md shadow";
-
-      if (mod.type === "title") {
-        div.innerHTML = `
-          <h2 class="text-xl font-semibold text-gray-200">${mod.content}</h2>
-        `;
-      } else if (mod.type === "text") {
-        div.innerHTML = `
-          <p class="text-gray-200 whitespace-pre-wrap">${mod.content}</p>
-        `;
-      } else if (mod.type === "quiz") {
-        const optionsHtml = mod.options.map(opt =>
-          `<li class="pl-2 cursor-pointer rounded-md hover:text-white" data-option="${opt}">🔹 ${opt}</li>`
-        ).join("");
-
-        div.innerHTML = `
-          <p class="mb-2 font-medium text-gray-300">${mod.question}</p>
-          <ul class="text-gray-400 list-disc rounded-md ml-5">${optionsHtml}</ul>
-          <p class="text-green-400 mt-2 hidden rounded-md border border-green-500 px-3 py-2" id="quiz-answer-${index}">
-            ✅ Answer: <strong>${mod.answer}</strong>
-          </p>
-        `;
-
-        div.querySelectorAll("li").forEach(li => {
-          li.addEventListener("click", () => {
-            if (div.getAttribute("data-answered")) return;
-            div.setAttribute("data-answered", "true");
-            const chosen = li.getAttribute("data-option");
-            if (chosen === mod.answer) {
-              li.classList.add("bg-green-700");
-            } else {
-              li.classList.add("bg-red-700");
-              const correctLi = div.querySelector(`li[data-option="${mod.answer}"]`);
-              if (correctLi) correctLi.classList.add("bg-green-700");
-            }
-            div.querySelector(`#quiz-answer-${index}`).classList.remove("hidden");
-          });
-        });
-      } else if (mod.type === "media") {
-        const isImage = mod.mediaType === "image";
-        const src = `/Uploads/${mod.fileName}`;
-        div.innerHTML = isImage
-          ? `<img src="${src}" alt="${mod.fileName}" class="rounded w-full max-h-96 object-contain" />`
-          : `<video controls class="w-full max-h-96 rounded"><source src="${src}" type="video/mp4" /></video>`;
+    (async () => {
+      // 1) Read URL params
+      const params    = new URLSearchParams(window.location.search);
+      const courseId  = params.get('id');
+      const lectureId = params.get('lectureId');
+      if (!courseId || !lectureId) {
+        document.getElementById('lectureContent').textContent = '❌ Missing course id or lectureId';
+        return;
       }
 
-      content.appendChild(div);
-    });
+      // 2) Fetch the full course
+      let course;
+      try {
+        const res = await fetch(`get-course.php?id=${encodeURIComponent(courseId)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        course = await res.json();
+      } catch (err) {
+        console.error('Failed to load course:', err);
+        document.getElementById('lectureContent').textContent = '❌ Failed to load course data.';
+        return;
+      }
 
-    // 6) Go back button
-    document.getElementById('goBackBtn').addEventListener('click', () => {
-      window.history.back();
-    });
+      // 3) Find the specific lecture
+      const lectureObj = course.lectures.find(l => String(l.id) === lectureId);
+      if (!lectureObj) {
+        document.getElementById('lectureContent').textContent = `❌ Lecture ${lectureId} not found.`;
+        return;
+      }
 
-    document.getElementById('tryAgainBtn').addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => location.reload(), 500);
-    });
+      // 4) Set custom lecture name
+      document.getElementById('customLectureName').textContent =
+        lectureObj.name || `Lecture ${lectureId}`;
+
+      // 5) Build modules array from numeric keys
+      const modules = Object.keys(lectureObj)
+        .filter(k => /^\d+$/.test(k))
+        .sort((a,b) => a - b)
+        .map(k => lectureObj[k]);
+
+      // 6) Render modules
+      const container = document.getElementById('lectureContent');
+      modules.forEach((mod, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-800 p-4 rounded-md shadow';
+
+        if (mod.type === 'title') {
+          div.innerHTML = `<h2 class="text-xl font-semibold text-gray-200">${mod.content}</h2>`;
+        }
+        else if (mod.type === 'text') {
+          div.innerHTML = `<p class="text-gray-200 whitespace-pre-wrap">${mod.content}</p>`;
+        }
+        else if (mod.type === 'quiz') {
+          const optionsHtml = mod.options.map(opt =>
+            `<li class="pl-2 cursor-pointer rounded-md hover:text-white" data-option="${opt}">🔹 ${opt}</li>`
+          ).join('');
+          div.innerHTML = `
+            <p class="mb-2 font-medium text-gray-300">${mod.question}</p>
+            <ul class="text-gray-400 list-disc ml-5">${optionsHtml}</ul>
+            <p id="quiz-answer-${index}"
+               class="text-green-400 mt-2 hidden rounded-md border border-green-500 px-3 py-2">
+              ✅ Answer: <strong>${mod.answer}</strong>
+            </p>
+          `;
+          div.querySelectorAll('li').forEach(li => {
+            li.addEventListener('click', () => {
+              if (div.dataset.answered) return;
+              div.dataset.answered = 'true';
+              const chosen = li.dataset.option;
+              if (chosen === mod.answer) {
+                li.classList.add('bg-green-700');
+              } else {
+                li.classList.add('bg-red-700');
+                const correctLi = div.querySelector(`li[data-option="${mod.answer}"]`);
+                if (correctLi) correctLi.classList.add('bg-green-700');
+              }
+              div.querySelector(`#quiz-answer-${index}`).classList.remove('hidden');
+            });
+          });
+        }
+        else if (mod.type === 'media') {
+          const isImage = mod.mediaType === 'image';
+          const src = `/uploads/${mod.fileName}`;
+          div.innerHTML = isImage
+            ? `<img src="${src}" alt="${mod.fileName}" class="rounded w-full max-h-96 object-contain"/>`
+            : `<video controls class="w-full max-h-96 rounded">
+                 <source src="${src}" type="video/mp4"/>
+               </video>`;
+        }
+
+        container.appendChild(div);
+      });
+
+      // 7) Wire up buttons
+      document.getElementById('goBackBtn').addEventListener('click', () => {
+        location.href = `readCourse.html?id=${encodeURIComponent(courseId)}`;
+      });
+      document.getElementById('tryAgainBtn').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => location.reload(), 500);
+      });
+
+    })();
   </script>
 </body>
 </html>
