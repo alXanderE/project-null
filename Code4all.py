@@ -39,7 +39,7 @@ def serve_landing_from_db():
 # # Editor page
 @app.route("/editor")
 def editor():
-    return render_template("content-maker.html")
+    return render_template("content-maker1.html")
 
 # # Echo endpoint (plain text)
 @app.route("/echo", methods=["POST"])
