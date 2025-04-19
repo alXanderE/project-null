@@ -29,5 +29,13 @@ students. Students can access a course they want to view with the search bar.
 
 - Account logins
 - Video Lecture uploads
+- Authentication
+- Sharing by link
+- Picture uploads
+- A Like/Dislike system
+- View count
+- Invite friends
+- Viewing Streak
+- Content Moderation
 
 
